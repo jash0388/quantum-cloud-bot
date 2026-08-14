@@ -1,33 +1,58 @@
 /**
  * =========================================================================
- *  TGX QUANTUM — CONTINUOUS 24/7 TRACKER (PERSISTENT & LOCKED)
- *  - Locks Base Bet & Balance in LocalStorage
- *  - Catches up and calculates every draw even after closing the app/offline
+ *  TGX QUANTUM — CLOUD-WIDE SYNCHRONIZED TRACKER (ALL DEVICES)
+ *  - Global Cloud Sync across iPhone, Android, Tablet & PC
+ *  - Continuous Catch-Up & Zero Missed Bets
  * =========================================================================
  */
 
 (function () {
   'use strict';
 
-  // 1. Persistent Locked State
-  let BASE_BET = parseInt(localStorage.getItem('TGX_LOCK_BASE_BET')) || 4;
-  let START_BALANCE = parseFloat(localStorage.getItem('TGX_LOCK_START_BAL')) || 228.00;
-  let CURRENT_BALANCE = parseFloat(localStorage.getItem('TGX_LOCK_CURR_BAL')) || 483.16;
-  let currentStake = parseInt(localStorage.getItem('TGX_LOCK_STAKE')) || BASE_BET;
-  let wins = parseInt(localStorage.getItem('TGX_LOCK_WINS')) || 0;
-  let losses = parseInt(localStorage.getItem('TGX_LOCK_LOSSES')) || 0;
+  let BASE_BET = 4;
+  let START_BALANCE = 228.00;
+  let CURRENT_BALANCE = 483.16;
+  let currentStake = 4;
+  let wins = 0;
+  let losses = 0;
 
   const API_URL = 'https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssuePage.json';
-  let PROCESSED_ISSUES = new Set(JSON.parse(localStorage.getItem('TGX_PROCESSED_SET') || '[]'));
-  let HISTORY_FEED = JSON.parse(localStorage.getItem('TGX_SAVED_HISTORY') || '[]');
+  const CLOUD_SETTINGS_API = '/api/settings';
 
-  // Initialize Input Values
-  document.getElementById('inpBaseBet').value = BASE_BET;
-  document.getElementById('inpStartBal').value = START_BALANCE;
+  let PROCESSED_ISSUES = new Set();
+  let HISTORY_FEED = [];
+  let isInitialized = false;
 
-  document.getElementById('btnSaveConfig').onclick = () => {
+  // 1. Fetch Cloud-Wide State on Load
+  async function loadCloudState() {
+    try {
+      const res = await fetch(CLOUD_SETTINGS_API);
+      const state = await res.json();
+      if (state) {
+        BASE_BET = state.baseBet || 4;
+        START_BALANCE = state.startBalance || 228.00;
+        CURRENT_BALANCE = state.currentBalance || 483.16;
+        currentStake = state.currentStake || BASE_BET;
+        wins = state.wins || 0;
+        losses = state.losses || 0;
+        if (state.history && state.history.length) HISTORY_FEED = state.history;
+        if (state.processedSet && state.processedSet.length) {
+          PROCESSED_ISSUES = new Set(state.processedSet);
+        }
+      }
+    } catch (e) {}
+
+    document.getElementById('inpBaseBet').value = BASE_BET;
+    document.getElementById('inpStartBal').value = START_BALANCE;
+    isInitialized = true;
+    updateUI();
+  }
+
+  // 2. Lock & Save Button -> Pushes to Cloud for ALL Devices
+  document.getElementById('btnSaveConfig').onclick = async () => {
     const b = parseInt(document.getElementById('inpBaseBet').value) || 4;
     const s = parseFloat(document.getElementById('inpStartBal').value) || 228.00;
+    
     BASE_BET = b;
     START_BALANCE = s;
     CURRENT_BALANCE = s;
@@ -36,19 +61,33 @@
     losses = 0;
     HISTORY_FEED = [];
     PROCESSED_ISSUES.clear();
-    savePersistentState();
+
+    const saveBtn = document.getElementById('btnSaveConfig');
+    saveBtn.textContent = 'SAVING...';
+
+    await pushCloudState();
+    saveBtn.textContent = 'LOCKED & SAVED ✓';
+    setTimeout(() => { saveBtn.textContent = 'LOCK & SAVE'; }, 2000);
     updateUI();
   };
 
-  function savePersistentState() {
-    localStorage.setItem('TGX_LOCK_BASE_BET', BASE_BET);
-    localStorage.setItem('TGX_LOCK_START_BAL', START_BALANCE);
-    localStorage.setItem('TGX_LOCK_CURR_BAL', CURRENT_BALANCE);
-    localStorage.setItem('TGX_LOCK_STAKE', currentStake);
-    localStorage.setItem('TGX_LOCK_WINS', wins);
-    localStorage.setItem('TGX_LOCK_LOSSES', losses);
-    localStorage.setItem('TGX_SAVED_HISTORY', JSON.stringify(HISTORY_FEED.slice(0, 30)));
-    localStorage.setItem('TGX_PROCESSED_SET', JSON.stringify(Array.from(PROCESSED_ISSUES).slice(-100)));
+  async function pushCloudState() {
+    try {
+      await fetch(CLOUD_SETTINGS_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          baseBet: BASE_BET,
+          startBalance: START_BALANCE,
+          currentBalance: CURRENT_BALANCE,
+          currentStake: currentStake,
+          wins: wins,
+          losses: losses,
+          history: HISTORY_FEED.slice(0, 30),
+          processedSet: Array.from(PROCESSED_ISSUES).slice(-100)
+        })
+      });
+    } catch (e) {}
   }
 
   function fetchDrawHistory() {
@@ -58,6 +97,8 @@
   }
 
   async function continuousTrackerCycle() {
+    if (!isInitialized) return;
+
     try {
       const json = await fetchDrawHistory();
       const list = json?.data?.list;
@@ -68,20 +109,20 @@
       const nextPeriodId = (BigInt(latestId) + 1n).toString();
       const remSeconds = 60 - (new Date().getSeconds() % 60);
 
-      // Continuous Catch-Up: Process all unprocessed historical rounds in order (oldest to newest)
+      // Continuous Catch-Up (process oldest to newest)
       const unprocessed = [];
       for (const item of list) {
         if (!PROCESSED_ISSUES.has(item.issueNumber.toString())) {
-          unprocessed.unshift(item); // Add to front so we process in chronological order
+          unprocessed.unshift(item);
         }
       }
 
+      let stateChanged = false;
       for (const item of unprocessed) {
         const id = item.issueNumber.toString();
         const num = parseInt(item.number);
         const actualSize = num >= 5 ? 'BIG' : 'SMALL';
 
-        // Calculate Quantum prediction for that round
         const idx = list.findIndex(x => x.issueNumber.toString() === id);
         const prev5 = list.slice(idx + 1, idx + 6).map(x => parseInt(x.number) >= 5 ? 'BIG' : 'SMALL');
         const pred = prev5.filter(x => x === 'BIG').length > 2 ? 'BIG' : 'SMALL';
@@ -93,12 +134,12 @@
           roundPnl = currentStake * 0.96;
           wins++;
           CURRENT_BALANCE += roundPnl;
-          currentStake = BASE_BET; // Reset on win
+          currentStake = BASE_BET;
         } else {
           roundPnl = -currentStake;
           losses++;
           CURRENT_BALANCE += roundPnl;
-          currentStake = currentStake * 2; // Martingale 2x
+          currentStake = currentStake * 2;
         }
 
         HISTORY_FEED.unshift({
@@ -111,17 +152,17 @@
         });
 
         PROCESSED_ISSUES.add(id);
+        stateChanged = true;
       }
 
-      if (unprocessed.length > 0) {
-        savePersistentState();
+      if (stateChanged) {
+        pushCloudState();
       }
 
       // Next Upcoming Prediction
       const last5 = list.slice(0, 5).map(x => parseInt(x.number) >= 5 ? 'BIG' : 'SMALL');
       const nextPred = last5.filter(x => x === 'BIG').length > 2 ? 'BIG' : 'SMALL';
 
-      // Update UI
       document.getElementById('targetPeriod').textContent = nextPeriodId;
       document.getElementById('drawTimer').textContent = remSeconds;
 
@@ -165,6 +206,8 @@
     }
   }
 
-  setInterval(continuousTrackerCycle, 1000);
-  continuousTrackerCycle();
+  loadCloudState().then(() => {
+    setInterval(continuousTrackerCycle, 1000);
+    continuousTrackerCycle();
+  });
 })();
