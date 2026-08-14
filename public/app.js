@@ -1,7 +1,6 @@
 /**
  * =========================================================================
- *  TGX QUANTUM — Web Dashboard Client Application
- *  Handles WebSocket live stream, controls & config updates
+ *  TGX QUANTUM ALL-IN-ONE CLOUD CONTROLLER
  * =========================================================================
  */
 
@@ -15,8 +14,7 @@ function connectWS() {
   ws = new WebSocket(wsUrl);
 
   ws.onopen = () => {
-    document.getElementById('cloudStatus').className = 'cloud-status status-live';
-    document.getElementById('statusText').textContent = '24/7 CLOUD ACTIVE';
+    document.getElementById('hudStatus').textContent = isRunning ? 'AUTO-BETTING ACTIVE' : 'READY';
   };
 
   ws.onmessage = (event) => {
@@ -29,8 +27,7 @@ function connectWS() {
   };
 
   ws.onclose = () => {
-    document.getElementById('cloudStatus').className = 'cloud-status';
-    document.getElementById('statusText').textContent = 'RECONNECTING...';
+    document.getElementById('hudStatus').textContent = 'RECONNECTING...';
     setTimeout(connectWS, 2000);
   };
 }
@@ -38,78 +35,48 @@ function connectWS() {
 function updateUI(state) {
   isRunning = state.running;
 
-  // 1. Stats
-  document.getElementById('valBalance').textContent = `₹${state.balance.toFixed(2)}`;
-  document.getElementById('valStartBal').textContent = `Started: ₹${(state.startBalance || 345.84).toFixed(2)}`;
+  document.getElementById('hudPeriod').textContent = state.targetPeriod ? state.targetPeriod.slice(-3) : '--';
+  document.getElementById('hudTimer').textContent = (state.remainingSeconds || '--') + 's';
+  document.getElementById('hudBalance').textContent = `₹${(state.balance || 345.84).toFixed(2)}`;
 
-  const pnl = state.balance - (state.startBalance || 345.84);
-  const pnlEl = document.getElementById('valPnl');
-  pnlEl.textContent = `${pnl >= 0 ? '+' : ''}₹${pnl.toFixed(2)}`;
-  pnlEl.className = `stat-val ${pnl >= 0 ? 'stat-green' : 'stat-danger'}`;
+  const sig = document.getElementById('hudSignal');
+  sig.textContent = state.activeSignal || 'WAITING...';
+  sig.style.color = state.activeSignal === 'BIG' ? '#f7c873' : '#73f7ff';
 
-  const totalGames = state.wins + state.losses;
-  const rate = totalGames > 0 ? ((state.wins / totalGames) * 100).toFixed(0) : 0;
-  document.getElementById('valWinRate').textContent = `Win Rate: ${rate}% (${state.wins}W / ${state.losses}L)`;
+  document.getElementById('hudStake').textContent = `Stake: ₹${state.currentBet || 4} (Martingale)`;
 
-  document.getElementById('valStake').textContent = `₹${state.currentBet}`;
-  document.getElementById('valBaseBet').textContent = `Base Bet: ₹${state.baseBet}`;
+  const btn = document.getElementById('btnToggle');
+  const stat = document.getElementById('hudStatus');
 
-  // 2. Active Round Card
-  document.getElementById('targetPeriod').textContent = state.targetPeriod || '--';
-  document.getElementById('drawTimer').textContent = state.remainingSeconds || '--';
-
-  const sigEl = document.getElementById('signalVal');
-  sigEl.textContent = state.activeSignal || 'WAITING...';
-  sigEl.style.color = state.activeSignal === 'BIG' ? '#f7c873' : '#73f7ff';
-
-  if (state.activeOpposites && state.activeOpposites.length) {
-    document.getElementById('signalOpp').textContent = `Opposite Hedge: [ ${state.activeOpposites[0]} • ${state.activeOpposites[1]} ]`;
-  }
-
-  // 3. CTA Button
-  const btn = document.getElementById('btnToggleBot');
   if (state.running) {
-    btn.className = 'main-cta-btn btn-stop';
+    btn.className = 'hud-btn hud-btn-stop';
     btn.innerHTML = '<i class="fa-solid fa-stop"></i> STOP CLOUD AUTO-BET';
+    stat.textContent = 'AUTO-BETTING 24/7';
+    stat.style.color = '#00e676';
   } else {
-    btn.className = 'main-cta-btn btn-start';
+    btn.className = 'hud-btn hud-btn-start';
     btn.innerHTML = '<i class="fa-solid fa-play"></i> START CLOUD AUTO-BET';
-  }
-
-  // 4. History Feed
-  if (state.logs && state.logs.length) {
-    const tbody = document.getElementById('historyBody');
-    tbody.innerHTML = state.logs.slice(0, 10).map(log => `
-      <tr>
-        <td>${log.period}</td>
-        <td>${log.prediction}</td>
-        <td>${log.number}</td>
-        <td class="${log.won ? 'win-tag' : 'loss-tag'}">${log.won ? 'WIN 🏆' : 'LOSS 💀'}</td>
-        <td class="${log.profit >= 0 ? 'win-tag' : 'loss-tag'}">${log.profit >= 0 ? '+' : ''}₹${log.profit.toFixed(2)}</td>
-        <td>₹${log.balance.toFixed(2)}</td>
-      </tr>
-    `).join('');
+    stat.textContent = 'PAUSED';
+    stat.style.color = '#f7c873';
   }
 }
 
-// Button Events
-document.getElementById('btnToggleBot').onclick = () => {
+document.getElementById('btnToggle').onclick = () => {
   if (ws && ws.readyState === WebSocket.OPEN) {
     ws.send(JSON.stringify({ type: isRunning ? 'STOP' : 'START' }));
   }
 };
 
-document.getElementById('btnSaveConfig').onclick = () => {
-  const baseBet = document.getElementById('cfgBaseBet').value;
-  const maxLevel = document.getElementById('cfgMaxLevel').value;
-  const takeProfit = document.getElementById('cfgTakeProfit').value;
-  const stopLoss = document.getElementById('cfgStopLoss').value;
-
-  fetch('/api/control', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ baseBet, maxLevel, takeProfit, stopLoss })
-  });
-};
+function toggleHud() {
+  const hud = document.getElementById('quantumHud');
+  const sc = document.getElementById('hudShortcut');
+  if (hud.style.display === 'none') {
+    hud.style.display = 'block';
+    sc.style.display = 'none';
+  } else {
+    hud.style.display = 'none';
+    sc.style.display = 'flex';
+  }
+}
 
 connectWS();
