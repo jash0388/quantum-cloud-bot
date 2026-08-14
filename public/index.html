@@ -3,56 +3,94 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>TGX QUANTUM — All-in-One Cloud Portal</title>
+  <title>TGX QUANTUM — Live Stats & Telemetry</title>
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
+  <div class="app-container">
 
-  <!-- EMBEDDED GAME BROWSER FRAME -->
-  <iframe id="gameFrame" src="https://www.qf7auv57duu4dxj.com/#/saasLottery/WinGo?gameCode=WinGo_1M&lottery=WinGo"></iframe>
-
-  <!-- FLOATING MOD CONTROLLER HUD -->
-  <div id="quantumHud">
-    <div class="hud-header">
-      <div class="hud-brand">
-        <i class="fa-solid fa-bolt-lightning" style="color:#f7c873;"></i>
-        <span>TGX QUANTUM 24/7</span>
+    <!-- HEADER -->
+    <header class="top-bar">
+      <div class="brand">
+        <div class="brand-icon"><i class="fa-solid fa-satellite-dish"></i></div>
+        <div>
+          <h1 class="brand-title">TGX TELEMETRY</h1>
+          <span class="brand-sub">LIVE 24/7 BET MONITOR</span>
+        </div>
       </div>
-      <div class="hud-timer" id="hudTimer">--s</div>
-    </div>
-
-    <!-- SIGNAL PREDICTION CARD -->
-    <div class="hud-signal-box">
-      <div class="hud-tag">QUANTUM 1-MIN SIGNAL</div>
-      <div class="hud-sig-val" id="hudSignal">SYNCING...</div>
-      <div class="hud-stake" id="hudStake">Stake: ₹4 (Martingale)</div>
-    </div>
-
-    <!-- LIVE METRICS -->
-    <div class="hud-meta">
-      <div class="meta-row">
-        <span>Target Round:</span>
-        <strong id="hudPeriod">--</strong>
+      <div class="cloud-status status-live" id="cloudStatus">
+        <span class="status-dot"></span>
+        <span id="statusText">LIVE SYNCED</span>
       </div>
-      <div class="meta-row">
-        <span>Live Balance:</span>
-        <strong id="hudBalance" style="color:#f7c873;">₹345.84</strong>
-      </div>
-      <div class="meta-row">
-        <span>Status:</span>
-        <strong id="hudStatus" style="color:#00e676;">READY</strong>
-      </div>
-    </div>
+    </header>
 
-    <!-- ACTION BUTTON -->
-    <button class="hud-btn hud-btn-start" id="btnToggle">
-      <i class="fa-solid fa-play"></i> START CLOUD AUTO-BET
-    </button>
+    <!-- LIVE METRICS GRID -->
+    <section class="stats-grid">
+      <div class="stat-card">
+        <span class="stat-label">ACCOUNT BALANCE</span>
+        <div class="stat-val stat-gold" id="valBalance">₹483.16</div>
+        <span class="stat-sub">Live Bankroll</span>
+      </div>
+
+      <div class="stat-card">
+        <span class="stat-label">SESSION PROFIT</span>
+        <div class="stat-val stat-green" id="valPnl">+₹255.16</div>
+        <span class="stat-sub" id="valWinRate">Win Rate: 100%</span>
+      </div>
+
+      <div class="stat-card">
+        <span class="stat-label">CURRENT STAKE</span>
+        <div class="stat-val stat-cyan" id="valStake">₹4</div>
+        <span class="stat-sub">Martingale</span>
+      </div>
+    </section>
+
+    <!-- UPCOMING BET CARD -->
+    <section class="round-card">
+      <div class="round-header">
+        <div>
+          <span class="round-tag">UPCOMING ROUND (1-MIN)</span>
+          <div class="round-id" id="targetPeriod">SYNCING...</div>
+        </div>
+        <div class="timer-box">
+          <div class="timer-num" id="drawTimer">--</div>
+          <span class="timer-lbl">SEC</span>
+        </div>
+      </div>
+
+      <div class="signal-display">
+        <div class="signal-badge">PREDICTED SIGNAL</div>
+        <div class="signal-val" id="signalVal">BIG</div>
+        <div class="signal-stake-tag" id="signalStake">Current Bet: ₹4 on BIG</div>
+      </div>
+    </section>
+
+    <!-- LAST 5 COMPLETED BETS -->
+    <section class="history-card">
+      <h3 class="section-title"><i class="fa-solid fa-list-check"></i> LAST COMPLETED BETS</h3>
+      <div class="table-container">
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th>PRD</th>
+              <th>PRED</th>
+              <th>DREW</th>
+              <th>OUTCOME</th>
+              <th>ROUND P/L</th>
+              <th>TIME</th>
+            </tr>
+          </thead>
+          <tbody id="last5Body">
+            <tr>
+              <td colspan="6" style="text-align:center;color:#9aa3b8;">Streaming live results...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
   </div>
-
-  <!-- FLOATING OPEN SHORTCUT ICON -->
-  <div id="hudShortcut" onclick="toggleHud()"><i class="fa-solid fa-bolt"></i></div>
 
   <script src="app.js"></script>
 </body>

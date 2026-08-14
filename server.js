@@ -1,10 +1,8 @@
 /**
  * =========================================================================
- *  TGX QUANTUM 24/7 CLOUD BOT SERVER
- *  - High-performance Express + WebSocket Architecture
- *  - Remote Web Control Dashboard (Mobile + Desktop)
- *  - 100% Synced Quantum Engine & 2x Martingale Ladder
- *  - Automated Reconnection & Safe Single-Bet Locking
+ *  TGX QUANTUM 24/7 CLOUD BOT SERVER & TELEMETRY HUB
+ *  - Serves Live Web Dashboard accessible from anywhere
+ *  - Receives live round events, bets & balance from your Realme Tablet
  * =========================================================================
  */
 
@@ -25,33 +23,29 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ── GLOBAL BOT STATE ───────────────────────────────────────
+// ── GLOBAL TELEMETRY STATE ─────────────────────────────────
 const BOT_STATE = {
-  running: false,
+  running: true,
   baseBet: 4,
   currentBet: 4,
-  maxLevel: 6,
-  takeProfitTarget: 500,
-  stopLossLimit: 100,
-  balance: 345.84,
-  startBalance: 345.84,
+  balance: 483.16,
+  startBalance: 228.00,
   wins: 0,
   losses: 0,
   targetPeriod: null,
   activeSignal: null,
   activeOpposites: [],
   remainingSeconds: 60,
-  status: 'IDLE (READY TO START)',
+  deviceStatus: 'ONLINE (TABLET ACTIVE)',
+  last5Bets: [],
   logs: [],
   connectedClients: 0
 };
 
 const API_URL = 'https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssuePage.json';
-const PLACED_ROUNDS = new Set();
 let lastProcessedIssue = null;
 let lastPredicted = null;
 
-// ── BROADCAST TO ALL CONNECTED DASHBOARDS ──────────────────
 function broadcastState() {
   const payload = JSON.stringify({ type: 'STATE_UPDATE', state: BOT_STATE });
   wss.clients.forEach(client => {
@@ -61,75 +55,52 @@ function broadcastState() {
   });
 }
 
-// ── API ROUTES FOR DASHBOARD ───────────────────────────────
+// ── API ROUTES FOR TELEMETRY ───────────────────────────────
 app.get('/api/state', (req, res) => {
   res.json(BOT_STATE);
 });
 
-app.post('/api/control', (req, res) => {
-  const { action, baseBet, maxLevel, takeProfit, stopLoss } = req.body;
-  
-  if (action === 'start') {
-    BOT_STATE.running = true;
-    BOT_STATE.status = 'ACTIVE AUTO-BETTING';
-  } else if (action === 'stop') {
-    BOT_STATE.running = false;
-    BOT_STATE.status = 'PAUSED BY USER';
-  }
+// Tablet sync endpoint: Tablet pushes its live balance & bets here
+app.post('/api/sync-event', (req, res) => {
+  const { balance, bet, signal, period, result, won, profit } = req.body;
 
-  if (baseBet && Number.isFinite(baseBet)) {
-    BOT_STATE.baseBet = baseBet;
-    if (!BOT_STATE.running) BOT_STATE.currentBet = baseBet;
-  }
-  if (maxLevel) BOT_STATE.maxLevel = maxLevel;
-  if (takeProfit) BOT_STATE.takeProfitTarget = takeProfit;
-  if (stopLoss) BOT_STATE.stopLossLimit = stopLoss;
-
-  broadcastState();
-  res.json({ success: true, state: BOT_STATE });
-});
-
-// External browser sync webhook (for live balance updates)
-app.post('/api/sync-balance', (req, res) => {
-  const { balance } = req.body;
-  if (balance && Number.isFinite(balance)) {
+  if (balance != null && Number.isFinite(balance) && balance > 0) {
     BOT_STATE.balance = balance;
-    if (BOT_STATE.startBalance === null) BOT_STATE.startBalance = balance;
-    broadcastState();
   }
+  if (bet != null) BOT_STATE.currentBet = bet;
+  if (signal) BOT_STATE.activeSignal = signal;
+  if (period) BOT_STATE.targetPeriod = period;
+
+  if (result) {
+    BOT_STATE.last5Bets.unshift({
+      period: period ? period.slice(-3) : '--',
+      prediction: signal || '--',
+      result: result,
+      won: !!won,
+      profit: profit || 0,
+      time: new Date().toLocaleTimeString()
+    });
+    if (BOT_STATE.last5Bets.length > 10) BOT_STATE.last5Bets.pop();
+
+    if (won) BOT_STATE.wins++; else BOT_STATE.losses++;
+  }
+
+  BOT_STATE.deviceStatus = 'ONLINE (TABLET ACTIVE)';
+  broadcastState();
   res.json({ success: true });
 });
 
-// ── WEBSOCKET CONNECTION HANDLER ───────────────────────────
+// ── WEBSOCKET HANDLER ──────────────────────────────────────
 wss.on('connection', (ws) => {
   BOT_STATE.connectedClients = wss.clients.size;
   ws.send(JSON.stringify({ type: 'INIT', state: BOT_STATE }));
-
-  ws.on('message', (message) => {
-    try {
-      const data = JSON.parse(message);
-      if (data.type === 'START') {
-        BOT_STATE.running = true;
-        BOT_STATE.status = 'ACTIVE AUTO-BETTING';
-        broadcastState();
-      } else if (data.type === 'STOP') {
-        BOT_STATE.running = false;
-        BOT_STATE.status = 'PAUSED';
-        broadcastState();
-      } else if (data.type === 'UPDATE_CONFIG') {
-        if (data.baseBet) BOT_STATE.baseBet = Number(data.baseBet);
-        if (data.maxLevel) BOT_STATE.maxLevel = Number(data.maxLevel);
-        broadcastState();
-      }
-    } catch (e) {}
-  });
 
   ws.on('close', () => {
     BOT_STATE.connectedClients = wss.clients.size;
   });
 });
 
-// ── CORE QUANTUM AI ENGINE ─────────────────────────────────
+// ── CORE QUANTUM AI STREAM ENGINE ──────────────────────────
 function fetchJSON(url) {
   return new Promise((resolve, reject) => {
     https.get(url + '?ts=' + Date.now(), (res) => {
@@ -156,7 +127,7 @@ async function runQuantumTick() {
     const latestId = latest.issueNumber.toString();
     const nextPeriodId = (BigInt(latestId) + 1n).toString();
 
-    // 1. Process Result of Previous Round
+    // 1. Process Result of Previous Period
     if (lastProcessedIssue && lastProcessedIssue !== latestId) {
       if (lastPredicted) {
         const actualNum = parseInt(latest.number);
@@ -167,18 +138,16 @@ async function runQuantumTick() {
         if (won) {
           roundProfit = BOT_STATE.currentBet * 0.96;
           BOT_STATE.wins++;
-          BOT_STATE.currentBet = BOT_STATE.baseBet; // Reset on Win
+          BOT_STATE.currentBet = BOT_STATE.baseBet;
         } else {
           roundProfit = -BOT_STATE.currentBet;
           BOT_STATE.losses++;
-          // Martingale 2x with Max Level Cap
-          const maxStake = BOT_STATE.baseBet * Math.pow(2, BOT_STATE.maxLevel - 1);
-          BOT_STATE.currentBet = Math.min(BOT_STATE.currentBet * 2, maxStake);
+          BOT_STATE.currentBet = BOT_STATE.currentBet * 2;
         }
 
         BOT_STATE.balance += roundProfit;
 
-        BOT_STATE.logs.unshift({
+        const record = {
           period: latestId.slice(-3),
           prediction: lastPredicted,
           number: `${actualNum} (${actualSize})`,
@@ -186,14 +155,17 @@ async function runQuantumTick() {
           profit: roundProfit,
           balance: BOT_STATE.balance,
           time: new Date().toLocaleTimeString()
-        });
+        };
 
+        BOT_STATE.last5Bets.unshift(record);
+        if (BOT_STATE.last5Bets.length > 10) BOT_STATE.last5Bets.pop();
+        BOT_STATE.logs.unshift(record);
         if (BOT_STATE.logs.length > 50) BOT_STATE.logs.pop();
       }
       lastPredicted = null;
     }
 
-    // 2. Compute Quantum Prediction for Upcoming Period
+    // 2. Compute Upcoming Quantum Signal
     if (BOT_STATE.targetPeriod !== nextPeriodId) {
       const last5 = list.slice(0, 5).map(x => parseInt(x.number) >= 5 ? 'BIG' : 'SMALL');
       const nextPred = last5.filter(x => x === 'BIG').length > 2 ? 'BIG' : 'SMALL';
@@ -207,17 +179,8 @@ async function runQuantumTick() {
       BOT_STATE.targetPeriod = nextPeriodId;
       BOT_STATE.activeSignal = nextPred;
       BOT_STATE.activeOpposites = [n1, n2].sort((a, b) => a - b);
+      lastPredicted = nextPred;
       lastProcessedIssue = latestId;
-    }
-
-    // 3. Execution Lock & Bet Recording
-    if (BOT_STATE.running && !PLACED_ROUNDS.has(nextPeriodId)) {
-      const remSeconds = 60 - (new Date().getSeconds() % 60);
-      if (remSeconds <= 55) { // 5s settle delay
-        PLACED_ROUNDS.add(nextPeriodId);
-        lastPredicted = BOT_STATE.activeSignal;
-        BOT_STATE.status = `PLACED ₹${BOT_STATE.currentBet} ON ${BOT_STATE.activeSignal}`;
-      }
     }
 
     BOT_STATE.remainingSeconds = 60 - (new Date().getSeconds() % 60);
@@ -228,8 +191,5 @@ async function runQuantumTick() {
 setInterval(runQuantumTick, 1000);
 
 server.listen(PORT, () => {
-  console.log(`\n=======================================================`);
-  console.log(`⚡ TGX QUANTUM CLOUD BOT RUNNING ON PORT ${PORT}`);
-  console.log(`🌐 Web Dashboard: http://localhost:${PORT}`);
-  console.log(`=======================================================\n`);
+  console.log(`⚡ TGX TELEMETRY SERVER RUNNING ON PORT ${PORT}`);
 });
