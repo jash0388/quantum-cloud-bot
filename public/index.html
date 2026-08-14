@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>TGX QUANTUM — Live Stats & Telemetry</title>
+  <title>TGX QUANTUM — Live Stats & Continuous Monitor</title>
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
@@ -16,12 +16,12 @@
         <div class="brand-icon"><i class="fa-solid fa-satellite-dish"></i></div>
         <div>
           <h1 class="brand-title">TGX TELEMETRY</h1>
-          <span class="brand-sub">LIVE 24/7 BET MONITOR</span>
+          <span class="brand-sub">CONTINUOUS 24/7 TRACKER</span>
         </div>
       </div>
       <div class="cloud-status status-live" id="cloudStatus">
         <span class="status-dot"></span>
-        <span id="statusText">LIVE SYNCED</span>
+        <span id="statusText">LOCKED & ACTIVE</span>
       </div>
     </header>
 
@@ -30,7 +30,7 @@
       <div class="stat-card">
         <span class="stat-label">ACCOUNT BALANCE</span>
         <div class="stat-val stat-gold" id="valBalance">₹483.16</div>
-        <span class="stat-sub">Live Bankroll</span>
+        <span class="stat-sub" id="valStartBal">Started: ₹228.00</span>
       </div>
 
       <div class="stat-card">
@@ -42,7 +42,25 @@
       <div class="stat-card">
         <span class="stat-label">CURRENT STAKE</span>
         <div class="stat-val stat-cyan" id="valStake">₹4</div>
-        <span class="stat-sub">Martingale</span>
+        <span class="stat-sub" id="valBaseLbl">Base: ₹4</span>
+      </div>
+    </section>
+
+    <!-- LOCKED SETTINGS BAR -->
+    <section class="settings-card">
+      <div class="settings-header">
+        <span><i class="fa-solid fa-lock" style="color:#00e676;"></i> LOCKED CONFIGURATION</span>
+        <button class="btn-save-mini" id="btnSaveConfig">LOCK & SAVE</button>
+      </div>
+      <div class="config-grid">
+        <div class="config-item">
+          <label>Base Bet (₹)</label>
+          <input type="number" id="inpBaseBet" value="4" min="1">
+        </div>
+        <div class="config-item">
+          <label>Starting Balance (₹)</label>
+          <input type="number" id="inpStartBal" value="228" min="1">
+        </div>
       </div>
     </section>
 
@@ -66,9 +84,9 @@
       </div>
     </section>
 
-    <!-- LAST 5 COMPLETED BETS -->
+    <!-- LAST COMPLETED BETS TABLE -->
     <section class="history-card">
-      <h3 class="section-title"><i class="fa-solid fa-list-check"></i> LAST COMPLETED BETS</h3>
+      <h3 class="section-title"><i class="fa-solid fa-list-check"></i> CONTINUOUS BET HISTORY</h3>
       <div class="table-container">
         <table class="history-table">
           <thead>
