@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>TGX QUANTUM — Cloud Bot Control Center</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+  <div class="app-container">
+
+    <!-- TOP APP BAR -->
+    <header class="top-bar">
+      <div class="brand">
+        <div class="brand-icon"><i class="fa-solid fa-bolt-lightning"></i></div>
+        <div>
+          <h1 class="brand-title">TGX QUANTUM</h1>
+          <span class="brand-sub">24/7 CLOUD BOT ENGINE</span>
+        </div>
+      </div>
+      <div class="cloud-status" id="cloudStatus">
+        <span class="status-dot"></span>
+        <span id="statusText">CONNECTING...</span>
+      </div>
+    </header>
+
+    <!-- LIVE STATS GRID -->
+    <section class="stats-grid">
+      <div class="stat-card">
+        <span class="stat-label">LIVE BALANCE</span>
+        <div class="stat-val stat-gold" id="valBalance">₹0.00</div>
+        <span class="stat-sub" id="valStartBal">Started: ₹345.84</span>
+      </div>
+
+      <div class="stat-card">
+        <span class="stat-label">SESSION P/L</span>
+        <div class="stat-val stat-green" id="valPnl">+₹0.00</div>
+        <span class="stat-sub" id="valWinRate">Win Rate: 0% (0W / 0L)</span>
+      </div>
+
+      <div class="stat-card">
+        <span class="stat-label">CURRENT STAKE</span>
+        <div class="stat-val stat-cyan" id="valStake">₹4</div>
+        <span class="stat-sub" id="valBaseBet">Base Bet: ₹4</span>
+      </div>
+    </section>
+
+    <!-- ACTIVE ROUND CARD -->
+    <section class="round-card">
+      <div class="round-header">
+        <div>
+          <span class="round-tag">TARGET 1-MIN PERIOD</span>
+          <div class="round-id" id="targetPeriod">20260814100010285</div>
+        </div>
+        <div class="timer-box">
+          <div class="timer-num" id="drawTimer">--</div>
+          <span class="timer-lbl">SEC</span>
+        </div>
+      </div>
+
+      <div class="signal-display">
+        <div class="signal-badge">PREDICTED SIGNAL</div>
+        <div class="signal-val" id="signalVal">BIG</div>
+        <div class="signal-opp" id="signalOpp">Opposite Hedge: [ 0 • 2 ]</div>
+      </div>
+    </section>
+
+    <!-- MAIN CONTROL BUTTON -->
+    <section class="action-section">
+      <button class="main-cta-btn btn-start" id="btnToggleBot">
+        <i class="fa-solid fa-play"></i> START CLOUD AUTO-BET
+      </button>
+    </section>
+
+    <!-- BOT SETTINGS DRAWER -->
+    <section class="settings-card">
+      <h3 class="section-title"><i class="fa-solid fa-sliders"></i> BOT CONFIGURATION</h3>
+      <div class="config-grid">
+        <div class="config-item">
+          <label>Base Bet (₹)</label>
+          <input type="number" id="cfgBaseBet" value="4" min="1" max="1000">
+        </div>
+        <div class="config-item">
+          <label>Max Martingale Level</label>
+          <input type="number" id="cfgMaxLevel" value="6" min="1" max="10">
+        </div>
+        <div class="config-item">
+          <label>Take Profit (₹)</label>
+          <input type="number" id="cfgTakeProfit" value="500">
+        </div>
+        <div class="config-item">
+          <label>Stop Loss (₹)</label>
+          <input type="number" id="cfgStopLoss" value="100">
+        </div>
+      </div>
+      <button class="btn-save-cfg" id="btnSaveConfig">APPLY CONFIGURATION</button>
+    </section>
+
+    <!-- LIVE RESULTS FEED TABLE -->
+    <section class="history-card">
+      <h3 class="section-title"><i class="fa-solid fa-clock-rotate-left"></i> LIVE ROUND HISTORY</h3>
+      <div class="table-container">
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th>PRD</th>
+              <th>PRED</th>
+              <th>DREW</th>
+              <th>RESULT</th>
+              <th>P/L</th>
+              <th>BALANCE</th>
+            </tr>
+          </thead>
+          <tbody id="historyBody">
+            <tr>
+              <td colspan="6" style="text-align:center;color:#9aa3b8;">Waiting for completed draws...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
