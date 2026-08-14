@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>TGX QUANTUM — Live Stats & Continuous Monitor</title>
+  <title>JASH PERC WIN — Live Cloud Telemetry</title>
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
@@ -15,51 +15,56 @@
       <div class="brand">
         <div class="brand-icon"><i class="fa-solid fa-satellite-dish"></i></div>
         <div>
-          <h1 class="brand-title">TGX TELEMETRY</h1>
-          <span class="brand-sub">CONTINUOUS 24/7 TRACKER</span>
+          <h1 class="brand-title">JASH PERC WIN</h1>
+          <span class="brand-sub">LIVE 24/7 CLOUD TELEMETRY</span>
         </div>
       </div>
       <div class="cloud-status status-live" id="cloudStatus">
         <span class="status-dot"></span>
-        <span id="statusText">LOCKED & ACTIVE</span>
+        <span id="statusText">CONNECTED TO TABLET</span>
       </div>
     </header>
+
+    <!-- STAGE BADGE -->
+    <div style="background:rgba(0,230,118,0.12);border:1px solid rgba(0,230,118,0.35);border-radius:12px;padding:8px 12px;text-align:center;margin:10px 0;font-size:12px;font-weight:800;color:#00e676;" id="valStageBadge">
+      🎯 ROUND 1 OF 4 (+15%)
+    </div>
 
     <!-- LIVE METRICS GRID -->
     <section class="stats-grid">
       <div class="stat-card">
         <span class="stat-label">ACCOUNT BALANCE</span>
-        <div class="stat-val stat-gold" id="valBalance">₹483.16</div>
-        <span class="stat-sub" id="valStartBal">Started: ₹228.00</span>
+        <div class="stat-val stat-gold" id="valBalance">₹262.00</div>
+        <span class="stat-sub" id="valStartBal">Started: ₹262.00</span>
       </div>
 
       <div class="stat-card">
         <span class="stat-label">SESSION PROFIT</span>
-        <div class="stat-val stat-green" id="valPnl">+₹255.16</div>
-        <span class="stat-sub" id="valWinRate">Win Rate: 100%</span>
+        <div class="stat-val stat-green" id="valPnl">+₹0.00</div>
+        <span class="stat-sub" id="valWinRate">Win Rate: 0% (0W / 0L)</span>
       </div>
 
       <div class="stat-card">
         <span class="stat-label">CURRENT STAKE</span>
-        <div class="stat-val stat-cyan" id="valStake">₹4</div>
-        <span class="stat-sub" id="valBaseLbl">Base: ₹4</span>
+        <div class="stat-val stat-cyan" id="valStake">₹3</div>
+        <span class="stat-sub" id="valBaseLbl">Base: ₹3</span>
       </div>
     </section>
 
-    <!-- LOCKED SETTINGS BAR -->
+    <!-- ROUND GOAL PROGRESS -->
     <section class="settings-card">
       <div class="settings-header">
-        <span><i class="fa-solid fa-lock" style="color:#00e676;"></i> LOCKED CONFIGURATION</span>
-        <button class="btn-save-mini" id="btnSaveConfig">LOCK & SAVE</button>
+        <span><i class="fa-solid fa-bullseye" style="color:#f7c873;"></i> STAGE TARGET PROGRESS</span>
+        <span style="color:#00e676;font-weight:900;" id="valStatus">ACTIVE BETTING</span>
       </div>
-      <div class="config-grid">
+      <div class="config-grid" style="grid-template-columns:1fr 1fr;">
         <div class="config-item">
-          <label>Base Bet (₹)</label>
-          <input type="number" id="inpBaseBet" value="4" min="1">
+          <label>Stage Profit Progress</label>
+          <div style="color:#f7c873;font-weight:900;font-size:14px;margin-top:4px;" id="valProgress">+₹0.0 / +₹39.3</div>
         </div>
         <div class="config-item">
-          <label>Starting Balance (₹)</label>
-          <input type="number" id="inpStartBal" value="228" min="1">
+          <label>Target % / Stage</label>
+          <div style="color:#73f7ff;font-weight:900;font-size:14px;margin-top:4px;" id="valTargetPct">+15% per stage</div>
         </div>
       </div>
     </section>
@@ -79,14 +84,14 @@
 
       <div class="signal-display">
         <div class="signal-badge">PREDICTED SIGNAL</div>
-        <div class="signal-val" id="signalVal">BIG</div>
-        <div class="signal-stake-tag" id="signalStake">Current Bet: ₹4 on BIG</div>
+        <div class="signal-val" id="signalVal">WAITING...</div>
+        <div class="signal-stake-tag" id="signalStake">Current Bet: ₹3</div>
       </div>
     </section>
 
     <!-- LAST COMPLETED BETS TABLE -->
     <section class="history-card">
-      <h3 class="section-title"><i class="fa-solid fa-list-check"></i> CONTINUOUS BET HISTORY</h3>
+      <h3 class="section-title"><i class="fa-solid fa-list-check"></i> LIVE BET HISTORY FROM TABLET</h3>
       <div class="table-container">
         <table class="history-table">
           <thead>
@@ -101,7 +106,7 @@
           </thead>
           <tbody id="last5Body">
             <tr>
-              <td colspan="6" style="text-align:center;color:#9aa3b8;">Streaming live results...</td>
+              <td colspan="6" style="text-align:center;color:#9aa3b8;">Streaming live results from your tablet...</td>
             </tr>
           </tbody>
         </table>

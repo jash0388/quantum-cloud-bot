@@ -1,17 +1,29 @@
 /**
- * Serverless Cloud State & Settings API for Vercel
- * Stores & syncs locked balance across ALL devices (Phone, Tablet, PC)
+ * Serverless Cloud Telemetry & Live Sync API for Vercel
+ * Syncs real-time stats from the tablet bot to your phone dashboard
  */
 
 let globalCloudState = {
-  baseBet: 4,
-  startBalance: 228.00,
-  currentBalance: 483.16,
-  currentStake: 4,
+  botName: 'jash perc win',
+  startBankroll: 262.00,
+  currentBalance: 262.00,
+  sessionProfit: 0.00,
+  currentStake: 3,
+  baseBet: 3,
+  targetPct: 15,
+  currentRoundNum: 1,
+  totalRounds: 4,
+  restMinutes: 10,
+  roundProgress: 0.00,
+  roundTarget: 39.30,
+  status: 'ACTIVE',
   wins: 0,
   losses: 0,
-  history: [],
-  processedSet: []
+  nextPeriod: '--',
+  nextPred: 'WAITING...',
+  timer: 60,
+  lastUpdated: Date.now(),
+  history: []
 };
 
 module.exports = (req, res) => {
@@ -24,16 +36,15 @@ module.exports = (req, res) => {
   }
 
   if (req.method === 'POST') {
-    const { baseBet, startBalance, currentBalance, currentStake, wins, losses, history, processedSet } = req.body || {};
-    if (baseBet != null) globalCloudState.baseBet = Number(baseBet);
-    if (startBalance != null) globalCloudState.startBalance = Number(startBalance);
-    if (currentBalance != null) globalCloudState.currentBalance = Number(currentBalance);
-    if (currentStake != null) globalCloudState.currentStake = Number(currentStake);
-    if (wins != null) globalCloudState.wins = Number(wins);
-    if (losses != null) globalCloudState.losses = Number(losses);
-    if (history && Array.isArray(history)) globalCloudState.history = history.slice(0, 30);
-    if (processedSet && Array.isArray(processedSet)) globalCloudState.processedSet = processedSet.slice(-100);
-
+    const data = req.body || {};
+    for (const key of Object.keys(data)) {
+      if (key === 'history' && Array.isArray(data.history)) {
+        globalCloudState.history = data.history.slice(0, 30);
+      } else if (data[key] !== undefined) {
+        globalCloudState[key] = data[key];
+      }
+    }
+    globalCloudState.lastUpdated = Date.now();
     return res.json({ success: true, state: globalCloudState });
   }
 
