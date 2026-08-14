@@ -1,11 +1,14 @@
 /**
  * =========================================================================
- *  TGX QUANTUM ALL-IN-ONE CLOUD CONTROLLER
+ *  TGX QUANTUM ALL-IN-ONE CLOUD CONTROLLER & AUTO-BET CLICK ENGINE
  * =========================================================================
  */
 
 let ws;
 let isRunning = false;
+let currentPeriod = null;
+let roundStartTime = Date.now();
+const COMPLETED_PERIODS = new Set();
 
 function connectWS() {
   const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
@@ -22,6 +25,7 @@ function connectWS() {
       const data = JSON.parse(event.data);
       if (data.type === 'INIT' || data.type === 'STATE_UPDATE') {
         updateUI(data.state);
+        handleAutoBetting(data.state);
       }
     } catch (e) {}
   };
@@ -58,6 +62,83 @@ function updateUI(state) {
     btn.innerHTML = '<i class="fa-solid fa-play"></i> START CLOUD AUTO-BET';
     stat.textContent = 'PAUSED';
     stat.style.color = '#f7c873';
+  }
+}
+
+// ── DOM AUTO-BETTING CLICKER ───────────────────────────────
+function getGameDocument() {
+  try {
+    const frame = document.getElementById('gameFrame');
+    return frame.contentDocument || frame.contentWindow.document;
+  } catch (e) {
+    return document;
+  }
+}
+
+function fireDeepClick(el) {
+  if (!el) return;
+  el.scrollIntoView?.({ block: 'center' });
+  try {
+    const touch = new Touch({ identifier: Date.now(), target: el, clientX: 100, clientY: 100 });
+    el.dispatchEvent(new TouchEvent('touchstart', { bubbles: true, cancelable: true, touches: [touch], targetTouches: [touch], changedTouches: [touch] }));
+    el.dispatchEvent(new TouchEvent('touchend', { bubbles: true, cancelable: true, touches: [], targetTouches: [], changedTouches: [touch] }));
+  } catch(e) {}
+
+  ['pointerdown', 'mousedown', 'pointerup', 'mouseup', 'click'].forEach(evt => {
+    el.dispatchEvent(new MouseEvent(evt, { bubbles: true, cancelable: true, view: window }));
+  });
+  try { el.click(); } catch(e) {}
+}
+
+async function placeBetOnPage(pred, stake) {
+  const doc = getGameDocument();
+  if (!doc) return;
+
+  // 1. Click Big / Small
+  const allEls = Array.from(doc.querySelectorAll('button, div, span, p'));
+  const targetBtn = allEls.find(e => (e.textContent || '').trim().toLowerCase() === pred.toLowerCase());
+  if (targetBtn) fireDeepClick(targetBtn);
+
+  await new Promise(r => setTimeout(r, 300));
+
+  // 2. Set Stake Amount
+  const inp = doc.querySelector('input[type="number"], input[type="tel"]') || 
+              Array.from(doc.querySelectorAll('input')).find(i => /amount|bet|stake/i.test(i.placeholder || i.className));
+  if (inp) {
+    const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
+    if (setter) setter.call(inp, String(stake)); else inp.value = String(stake);
+    inp.dispatchEvent(new Event('input', { bubbles: true }));
+    inp.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+
+  await new Promise(r => setTimeout(r, 300));
+
+  // 3. Click Confirm / Total amount
+  const btns = Array.from(doc.querySelectorAll('button, .van-button, div, span'));
+  const confirmBtn = btns.filter(b => /total amount/i.test((b.textContent || '').trim()));
+  if (confirmBtn.length > 0) {
+    const b = confirmBtn[confirmBtn.length - 1];
+    fireDeepClick(b);
+    if (b.parentElement) fireDeepClick(b.parentElement);
+  }
+}
+
+async function handleAutoBetting(state) {
+  if (!state.running || !state.targetPeriod || !state.activeSignal) return;
+
+  const prd = state.targetPeriod;
+  if (currentPeriod !== prd) {
+    currentPeriod = prd;
+    roundStartTime = Date.now();
+  }
+
+  if (COMPLETED_PERIODS.has(prd)) return;
+
+  const timePassed = (Date.now() - roundStartTime) / 1000;
+  if (timePassed >= 5 && !COMPLETED_PERIODS.has(prd)) {
+    COMPLETED_PERIODS.add(prd);
+    console.log(`%c🎯 [AUTO-BET]: Placing ₹${state.currentBet} on ${state.activeSignal} for Period ${prd.slice(-3)}`, 'color:#00e676;font-weight:bold;font-size:14px;');
+    await placeBetOnPage(state.activeSignal, state.currentBet || 4);
   }
 }
 
