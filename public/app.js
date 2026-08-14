@@ -1,12 +1,69 @@
 /**
- * JASH PERC WIN — Cloud Live Telemetry Client
- * Real-time balance deduction & pending bet status row
+ * JASH PERC WIN — Cloud Live Telemetry & Remote Control Client
  */
 
 (function () {
   'use strict';
 
   const CLOUD_API = '/api/settings';
+  let isBotRunning = true;
+
+  // Send Remote Command from Phone -> Cloud -> Tablet
+  async function sendRemoteCommand(commandType, payload = {}) {
+    const feedback = document.getElementById('cmdFeedback');
+    if (feedback) { feedback.textContent = 'SENDING...'; feedback.style.color = '#f7c873'; }
+
+    try {
+      const res = await fetch(CLOUD_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          isRemoteControl: true,
+          commandType: commandType,
+          payload: payload
+        })
+      });
+      const data = await res.json();
+      if (data && data.success) {
+        if (feedback) {
+          feedback.textContent = 'SENT TO TABLET ✓';
+          feedback.style.color = '#00e676';
+          setTimeout(() => { feedback.textContent = 'READY'; feedback.style.color = '#73f7ff'; }, 3000);
+        }
+      }
+    } catch(e) {
+      if (feedback) { feedback.textContent = 'ERROR SENDING'; feedback.style.color = '#ff4757'; }
+    }
+  }
+
+  // Hook up Remote Control Buttons
+  document.getElementById('btnSetBaseBet').onclick = () => {
+    const val = parseInt(document.getElementById('remoteBaseBet').value) || 4;
+    sendRemoteCommand('SET_BASE_BET', { baseBet: val });
+  };
+
+  document.getElementById('btnSetPct').onclick = () => {
+    const val = parseFloat(document.getElementById('remoteTargetPct').value) || 13;
+    sendRemoteCommand('SET_TARGET_PCT', { targetPct: val });
+  };
+
+  document.getElementById('btnRemoteToggle').onclick = () => {
+    isBotRunning = !isBotRunning;
+    const btn = document.getElementById('btnRemoteToggle');
+    if (isBotRunning) {
+      btn.textContent = '⏹ PAUSE TABLET BOT';
+      btn.style.background = '#ff4757';
+    } else {
+      btn.textContent = '▶ START TABLET BOT';
+      btn.style.background = '#00e676';
+      btn.style.color = '#000';
+    }
+    sendRemoteCommand('TOGGLE_RUNNING', { running: isBotRunning });
+  };
+
+  document.getElementById('btnRemoteSkipRest').onclick = () => {
+    sendRemoteCommand('SKIP_REST', {});
+  };
 
   async function pollLiveTelemetry() {
     try {
@@ -14,11 +71,11 @@
       const state = await res.json();
       if (!state) return;
 
-      const startBank = state.startBankroll || 421.76;
+      const startBank = state.startBankroll || 480.00;
       const profit = state.sessionProfit != null ? state.sessionProfit : 0;
       const currentTotal = state.currentBalance != null ? state.currentBalance : (startBank + profit);
       const stake = state.currentStake || state.baseBet || 4;
-      const roundNum = state.currentRoundNum || 1;
+      const roundNum = state.currentRoundNum || 2;
       const totRounds = state.totalRounds || 14;
       const targetPct = state.targetPct || 13;
       const status = state.status || 'ACTIVE BETTING';

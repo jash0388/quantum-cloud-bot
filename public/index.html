@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>JASH PERC WIN — Live Cloud Telemetry</title>
+  <title>JASH PERC WIN — Live Cloud Telemetry & Remote Control</title>
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
@@ -16,7 +16,7 @@
         <div class="brand-icon"><i class="fa-solid fa-satellite-dish"></i></div>
         <div>
           <h1 class="brand-title">JASH PERC WIN</h1>
-          <span class="brand-sub">LIVE 24/7 CLOUD TELEMETRY</span>
+          <span class="brand-sub">24/7 TELEMETRY & REMOTE CONTROL</span>
         </div>
       </div>
       <div class="cloud-status status-live" id="cloudStatus">
@@ -33,15 +33,15 @@
     <!-- LIVE METRICS GRID -->
     <section class="stats-grid">
       <div class="stat-card">
-        <span class="stat-label">TOTAL LIVE AMOUNT</span>
-        <div class="stat-val stat-gold" id="valBalance">₹421.76</div>
-        <span class="stat-sub" id="valStartBal">Started: ₹384.00</span>
+        <span class="stat-label">TOTAL LIVE BALANCE</span>
+        <div class="stat-val stat-gold" id="valBalance">₹480.00</div>
+        <span class="stat-sub" id="valStartBal">Started: ₹480.00</span>
       </div>
 
       <div class="stat-card">
         <span class="stat-label">SESSION PROFIT</span>
-        <div class="stat-val stat-green" id="valPnl">+₹52.84</div>
-        <span class="stat-sub" id="valWinRate">Win Rate: 52%</span>
+        <div class="stat-val stat-green" id="valPnl">+₹0.00</div>
+        <span class="stat-sub" id="valWinRate">Win Rate: 0%</span>
       </div>
 
       <div class="stat-card">
@@ -51,16 +51,45 @@
       </div>
     </section>
 
+    <!-- REMOTE CONTROLLER PANEL (SEND LIVE COMMANDS FROM PHONE TO TABLET) -->
+    <section class="settings-card" style="border: 1px solid #73f7ff; box-shadow: 0 4px 20px rgba(115,247,255,0.15);">
+      <div class="settings-header">
+        <span><i class="fa-solid fa-gamepad" style="color:#73f7ff;"></i> LIVE REMOTE CONTROL (FROM PHONE)</span>
+        <span style="font-size:10px;color:#73f7ff;font-weight:bold;" id="cmdFeedback">READY</span>
+      </div>
+      <div class="config-grid" style="grid-template-columns: 1fr 1fr; margin-top:8px;">
+        <div class="config-item">
+          <label>Change Base Bet (₹)</label>
+          <div style="display:flex;gap:4px;margin-top:4px;">
+            <input type="number" id="remoteBaseBet" value="4" min="1" style="width:55px;">
+            <button class="btn-save-mini" id="btnSetBaseBet" style="background:#73f7ff;color:#000;font-weight:900;border:none;border-radius:6px;padding:4px 8px;cursor:pointer;">SET</button>
+          </div>
+        </div>
+        <div class="config-item">
+          <label>Change Target %</label>
+          <div style="display:flex;gap:4px;margin-top:4px;">
+            <input type="number" id="remoteTargetPct" value="13" min="1" max="100" style="width:55px;">
+            <button class="btn-save-mini" id="btnSetPct" style="background:#73f7ff;color:#000;font-weight:900;border:none;border-radius:6px;padding:4px 8px;cursor:pointer;">SET</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:8px;margin-top:10px;">
+        <button id="btnRemoteToggle" style="flex:1;padding:8px;border:none;border-radius:8px;background:#ff4757;color:#fff;font-weight:900;font-size:11px;cursor:pointer;">⏹ PAUSE TABLET BOT</button>
+        <button id="btnRemoteSkipRest" style="flex:1;padding:8px;border:none;border-radius:8px;background:rgba(255,255,255,0.1);border:1px solid #73f7ff;color:#73f7ff;font-weight:900;font-size:11px;cursor:pointer;">⏩ SKIP REST NOW</button>
+      </div>
+    </section>
+
     <!-- ROUND GOAL PROGRESS -->
     <section class="settings-card">
       <div class="settings-header">
-        <span><i class="fa-solid fa-bullseye" style="color:#f7c873;"></i> TOTAL AMOUNT COMPOUND TARGET</span>
-        <span style="color:#73f7ff;font-weight:900;" id="valStatus">RESTING (7m left)</span>
+        <span><i class="fa-solid fa-bullseye" style="color:#f7c873;"></i> STAGE COMPOUND TARGET</span>
+        <span style="color:#73f7ff;font-weight:900;" id="valStatus">ACTIVE BETTING</span>
       </div>
       <div class="config-grid" style="grid-template-columns:1fr 1fr;">
         <div class="config-item">
-          <label>Next Round Target Goal</label>
-          <div style="color:#00e676;font-weight:900;font-size:14px;margin-top:4px;" id="valGoalTotal">₹476.59 (+13%)</div>
+          <label>Stage Target Goal</label>
+          <div style="color:#00e676;font-weight:900;font-size:14px;margin-top:4px;" id="valGoalTotal">₹542.40 (+13%)</div>
         </div>
         <div class="config-item">
           <label>Target % / Total Amount</label>
@@ -74,7 +103,7 @@
       <div class="round-header">
         <div>
           <span class="round-tag">UPCOMING ROUND (1-MIN)</span>
-          <div class="round-id" id="targetPeriod">030</div>
+          <div class="round-id" id="targetPeriod">--</div>
         </div>
         <div class="timer-box">
           <div class="timer-num" id="drawTimer">--</div>
@@ -85,7 +114,7 @@
       <div class="signal-display">
         <div class="signal-badge">PREDICTED SIGNAL</div>
         <div class="signal-val" id="signalVal">--</div>
-        <div class="signal-stake-tag" id="signalStake">Current Bet: ₹4 on --</div>
+        <div class="signal-stake-tag" id="signalStake">Next Stake: ₹4 on --</div>
       </div>
     </section>
 
