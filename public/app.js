@@ -16,7 +16,7 @@
 
       const startBank = state.startBankroll || 262;
       const profit = state.sessionProfit || 0;
-      const currentBal = startBank + profit;
+      const currentBal = (state.currentBalance != null && state.currentBalance > 0) ? state.currentBalance : (startBank + profit);
       const stake = state.currentStake || state.baseBet || 3;
       const roundNum = state.currentRoundNum || 1;
       const totRounds = state.totalRounds || 4;
