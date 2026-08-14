@@ -1,6 +1,6 @@
 /**
  * JASH PERC WIN — Cloud Live Telemetry Client
- * Polls real-time stats directly from the tablet's live stream
+ * Real-time balance deduction & pending bet status row
  */
 
 (function () {
@@ -43,7 +43,7 @@
       // Stage & Progress
       document.getElementById('valStageBadge').textContent = `🎯 ROUND ${roundNum} OF ${totRounds} (+${targetPct}%)`;
       document.getElementById('valStatus').textContent = status;
-      document.getElementById('valStatus').style.color = status.includes('REST') ? '#73f7ff' : (status.includes('ACTIVE') ? '#00e676' : '#ff4757');
+      document.getElementById('valStatus').style.color = status.includes('REST') ? '#73f7ff' : (status.includes('BET') || status.includes('ACTIVE') ? '#00e676' : '#ff4757');
 
       document.getElementById('valGoalTotal').textContent = `₹${targetGoal.toFixed(2)} (+${targetPct}%)`;
       document.getElementById('valTargetPct').textContent = `+${targetPct}% per stage (${totRounds} total)`;
@@ -56,21 +56,39 @@
       const sigEl = document.getElementById('signalVal');
       sigEl.textContent = state.nextPred || '--';
       sigEl.style.color = state.nextPred === 'BIG' ? '#f7c873' : (state.nextPred === 'SMALL' ? '#73f7ff' : '#9aa3b8');
-      document.getElementById('signalStake').textContent = `Current Bet: ₹${stake} on ${state.nextPred || '--'}`;
+      
+      const isBetPending = state.pendingBet != null;
+      document.getElementById('signalStake').textContent = isBetPending ? 
+        `Active Stake: ₹${state.pendingBet.stake} on ${state.pendingBet.pred} (⏳ Placed)` : 
+        `Next Stake: ₹${stake} on ${state.nextPred || '--'}`;
 
       // History Table
       const tbody = document.getElementById('last5Body');
       if (state.history && state.history.length > 0) {
-        tbody.innerHTML = state.history.slice(0, 15).map(b => `
-          <tr>
-            <td><strong>${b.period}</strong></td>
-            <td><span style="color:${b.prediction === 'BIG' ? '#f7c873' : '#73f7ff'};font-weight:800;">${b.prediction}</span></td>
-            <td>${b.number}</td>
-            <td class="${b.won ? 'win-tag' : 'loss-tag'}">${b.won ? 'WIN 🏆' : 'LOSS 💀'}</td>
-            <td class="${b.profit >= 0 ? 'win-tag' : 'loss-tag'}">${b.profit >= 0 ? '+' : ''}₹${Math.abs(b.profit).toFixed(2)}</td>
-            <td style="color:#9aa3b8;font-size:9.5px;">${b.time}</td>
-          </tr>
-        `).join('');
+        tbody.innerHTML = state.history.slice(0, 15).map(b => {
+          if (b.isPending) {
+            return `
+              <tr style="background:rgba(115,247,255,0.08);border-left:3px solid #73f7ff;">
+                <td><strong>${b.period}</strong></td>
+                <td><span style="color:${b.prediction === 'BIG' ? '#f7c873' : '#73f7ff'};font-weight:800;">${b.prediction}</span></td>
+                <td style="color:#73f7ff;font-style:italic;">Drawing...</td>
+                <td style="color:#f7c873;font-weight:800;">⏳ PENDING</td>
+                <td style="color:#9aa3b8;font-weight:bold;">-</td>
+                <td style="color:#9aa3b8;font-size:9.5px;">${b.time}</td>
+              </tr>
+            `;
+          }
+          return `
+            <tr>
+              <td><strong>${b.period}</strong></td>
+              <td><span style="color:${b.prediction === 'BIG' ? '#f7c873' : '#73f7ff'};font-weight:800;">${b.prediction}</span></td>
+              <td>${b.number}</td>
+              <td class="${b.won ? 'win-tag' : 'loss-tag'}">${b.won ? 'WIN 🏆' : 'LOSS 💀'}</td>
+              <td class="${b.profit >= 0 ? 'win-tag' : 'loss-tag'}">${b.profit >= 0 ? '+' : ''}₹${Math.abs(b.profit).toFixed(2)}</td>
+              <td style="color:#9aa3b8;font-size:9.5px;">${b.time}</td>
+            </tr>
+          `;
+        }).join('');
       }
     } catch (e) {}
   }
