@@ -14,19 +14,19 @@
       const state = await res.json();
       if (!state) return;
 
-      const startBank = state.startBankroll || 384;
-      const currentTotal = (state.currentBalance != null && state.currentBalance > 0) ? state.currentBalance : 421.76;
-      const profit = currentTotal - startBank;
+      const startBank = state.startBankroll || 421.76;
+      const profit = state.sessionProfit != null ? state.sessionProfit : 0;
+      const currentTotal = state.currentBalance != null ? state.currentBalance : (startBank + profit);
       const stake = state.currentStake || state.baseBet || 4;
-      const roundNum = state.currentRoundNum || 2;
+      const roundNum = state.currentRoundNum || 1;
       const totRounds = state.totalRounds || 14;
       const targetPct = state.targetPct || 13;
-      const status = state.status || 'RESTING (7m left)';
-      const targetGoal = state.targetBalance || (currentTotal * (1 + (targetPct / 100)));
-      const wins = state.wins || 17;
-      const losses = state.losses || 16;
+      const status = state.status || 'ACTIVE BETTING';
+      const targetGoal = state.targetBalance || (startBank * (1 + (targetPct / 100)));
+      const wins = state.wins || 0;
+      const losses = state.losses || 0;
       const tot = wins + losses;
-      const wr = tot > 0 ? ((wins / tot) * 100).toFixed(0) : 52;
+      const wr = tot > 0 ? ((wins / tot) * 100).toFixed(0) : 100;
 
       // Update UI Cards
       document.getElementById('valBalance').textContent = `₹${currentTotal.toFixed(2)}`;
@@ -49,7 +49,7 @@
       document.getElementById('valTargetPct').textContent = `+${targetPct}% per stage (${totRounds} total)`;
 
       // Upcoming round & signal
-      document.getElementById('targetPeriod').textContent = state.nextPeriod || '030';
+      document.getElementById('targetPeriod').textContent = state.nextPeriod || '--';
       const remSeconds = 60 - (new Date().getSeconds() % 60);
       document.getElementById('drawTimer').textContent = remSeconds;
 
