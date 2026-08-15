@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>WINGO 24/7 MARTINGALE — Live Cloud Telemetry & Remote Control</title>
+  <title>WINGO DRAGON AI — Live Telemetry & Inverter Control</title>
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
@@ -13,10 +13,10 @@
     <!-- HEADER -->
     <header class="top-bar">
       <div class="brand">
-        <div class="brand-icon"><i class="fa-solid fa-bolt"></i></div>
+        <div class="brand-icon" style="background:linear-gradient(135deg,#f7c873,#ff9800);color:#000;"><i class="fa-solid fa-dragon"></i></div>
         <div>
-          <h1 class="brand-title">WINGO 24/7 MARTINGALE</h1>
-          <span class="brand-sub">CONTINUOUS NON-STOP AUTO-BET & REMOTE</span>
+          <h1 class="brand-title">WINGO DRAGON AI</h1>
+          <span class="brand-sub">500-ROUND OPTIMIZED & REVERSE INVERTER</span>
         </div>
       </div>
       <div class="cloud-status status-live" id="cloudStatus">
@@ -29,8 +29,8 @@
     <section class="stats-grid">
       <div class="stat-card">
         <span class="stat-label">TOTAL WALLET BALANCE</span>
-        <div class="stat-val stat-gold" id="valBalance">₹480.00</div>
-        <span class="stat-sub" id="valStartBal">Start: ₹480.00</span>
+        <div class="stat-val stat-gold" id="valBalance">₹275.00</div>
+        <span class="stat-sub" id="valStartBal">Start: ₹275.00</span>
       </div>
 
       <div class="stat-card">
@@ -41,30 +41,36 @@
 
       <div class="stat-card">
         <span class="stat-label">NEXT BET STAKE</span>
-        <div class="stat-val stat-cyan" id="valStake">₹4</div>
-        <span class="stat-sub" id="valBaseLbl">Base Bet: ₹4</span>
+        <div class="stat-val stat-cyan" id="valStake">₹1</div>
+        <span class="stat-sub" id="valBaseLbl">Base Bet: ₹1</span>
       </div>
     </section>
 
     <!-- REMOTE CONTROLLER PANEL -->
-    <section class="settings-card" style="border: 1px solid #00e676; box-shadow: 0 4px 25px rgba(0,230,118,0.15);">
+    <section class="settings-card" style="border: 1px solid #f7c873; box-shadow: 0 4px 25px rgba(247,200,115,0.15);">
       <div class="settings-header">
-        <span><i class="fa-solid fa-gamepad" style="color:#00e676;"></i> REMOTE CONTROL (FROM PHONE)</span>
+        <span><i class="fa-solid fa-gamepad" style="color:#f7c873;"></i> REMOTE CONTROL (FROM PHONE)</span>
         <span style="font-size:10px;color:#00e676;font-weight:bold;" id="cmdFeedback">READY</span>
       </div>
+      
+      <!-- Straight / Reverse Mode Switch -->
+      <button id="btnRemoteMode" style="width:100%;padding:10px;border:none;border-radius:10px;background:#73f7ff;color:#000;font-weight:900;font-size:12px;cursor:pointer;margin-top:8px;transition:0.2s;">
+        ➡️ MODE: STRAIGHT (DRAGON RIDER)
+      </button>
+
       <div class="config-grid" style="grid-template-columns: 1fr 1fr; margin-top:8px;">
         <div class="config-item">
           <label>Base Bet (₹)</label>
           <div style="display:flex;gap:4px;margin-top:4px;">
-            <input type="number" id="remoteBaseBet" value="4" min="1" style="width:60px;">
-            <button class="btn-save-mini" id="btnSetBaseBet" style="background:#00e676;color:#000;font-weight:900;border:none;border-radius:6px;padding:4px 8px;cursor:pointer;">SET</button>
+            <input type="number" id="remoteBaseBet" value="1" min="1" style="width:60px;">
+            <button class="btn-save-mini" id="btnSetBaseBet" style="background:#f7c873;color:#000;font-weight:900;border:none;border-radius:6px;padding:4px 8px;cursor:pointer;">SET</button>
           </div>
         </div>
         <div class="config-item">
           <label>Start Bankroll (₹)</label>
           <div style="display:flex;gap:4px;margin-top:4px;">
-            <input type="number" id="remoteStartBal" value="480" min="1" style="width:60px;">
-            <button class="btn-save-mini" id="btnSetStartBal" style="background:#00e676;color:#000;font-weight:900;border:none;border-radius:6px;padding:4px 8px;cursor:pointer;">SET</button>
+            <input type="number" id="remoteStartBal" value="275" min="1" style="width:60px;">
+            <button class="btn-save-mini" id="btnSetStartBal" style="background:#f7c873;color:#000;font-weight:900;border:none;border-radius:6px;padding:4px 8px;cursor:pointer;">SET</button>
           </div>
         </div>
       </div>
@@ -89,9 +95,9 @@
       </div>
 
       <div class="signal-display" style="margin-top:10px;">
-        <div class="signal-badge">AI TREND PREDICTION</div>
+        <div class="signal-badge" id="signalModeBadge">AI DRAGON PREDICTION</div>
         <div class="signal-val" id="signalVal">BIG</div>
-        <div class="signal-stake-tag" id="signalStake">Current Stake: ₹4 on BIG</div>
+        <div class="signal-stake-tag" id="signalStake">Next Stake: ₹1 on BIG</div>
       </div>
     </section>
 

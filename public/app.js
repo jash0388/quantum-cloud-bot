@@ -1,5 +1,5 @@
 /**
- * WinGo 24/7 Martingale — Cloud Live Telemetry & Remote Control Client
+ * WinGo Dragon AI — Cloud Live Telemetry & Inverter Control Client
  */
 
 (function () {
@@ -7,6 +7,7 @@
 
   const CLOUD_API = '/api/settings';
   let isBotRunning = true;
+  let isReverseMode = false;
 
   async function sendRemoteCommand(commandType, payload = {}) {
     const feedback = document.getElementById('cmdFeedback');
@@ -36,13 +37,21 @@
   }
 
   // Hook up Remote Control Buttons
+  document.getElementById('btnRemoteMode').onclick = () => {
+    isReverseMode = !isReverseMode;
+    const btn = document.getElementById('btnRemoteMode');
+    btn.textContent = isReverseMode ? '🔄 MODE: REVERSE (INVERTED)' : '➡️ MODE: STRAIGHT (DRAGON RIDER)';
+    btn.style.background = isReverseMode ? '#ff9800' : '#73f7ff';
+    sendRemoteCommand('TOGGLE_REVERSE', {});
+  };
+
   document.getElementById('btnSetBaseBet').onclick = () => {
-    const val = parseInt(document.getElementById('remoteBaseBet').value) || 4;
+    const val = parseInt(document.getElementById('remoteBaseBet').value) || 1;
     sendRemoteCommand('SET_BASE_BET', { baseBet: val });
   };
 
   document.getElementById('btnSetStartBal').onclick = () => {
-    const val = parseFloat(document.getElementById('remoteStartBal').value) || 480;
+    const val = parseFloat(document.getElementById('remoteStartBal').value) || 275;
     sendRemoteCommand('SET_START_BALANCE', { startBankroll: val });
   };
 
@@ -73,15 +82,15 @@
       const state = await res.json();
       if (!state) return;
 
-      const currentBal = state.currentBalance != null ? state.currentBalance : 480.00;
+      const currentBal = state.currentBalance != null ? state.currentBalance : 275.00;
       const profit = state.sessionProfit != null ? state.sessionProfit : 0;
-      const stake = state.currentStake || state.baseBet || 4;
+      const stake = state.currentStake || state.baseBet || 1;
       const wins = state.wins || 0;
       const losses = state.losses || 0;
 
       // Update UI
       document.getElementById('valBalance').textContent = `₹${currentBal.toFixed(2)}`;
-      document.getElementById('valStartBal').textContent = `Start: ₹${(state.startBankroll || 480).toFixed(2)}`;
+      document.getElementById('valStartBal').textContent = `Start: ₹${(state.startBankroll || 275).toFixed(2)}`;
 
       const pnlEl = document.getElementById('valPnl');
       pnlEl.textContent = `${profit >= 0 ? '+' : ''}₹${profit.toFixed(2)}`;
@@ -89,7 +98,15 @@
 
       document.getElementById('valWinRate').textContent = `Score: ${wins}W / ${losses}L`;
       document.getElementById('valStake').textContent = `₹${stake}`;
-      document.getElementById('valBaseLbl').textContent = `Base Bet: ₹${state.baseBet || 4}`;
+      document.getElementById('valBaseLbl').textContent = `Base Bet: ₹${state.baseBet || 1}`;
+
+      // Mode sync
+      if (state.reverseMode !== undefined && state.reverseMode !== isReverseMode) {
+        isReverseMode = state.reverseMode;
+        const btn = document.getElementById('btnRemoteMode');
+        btn.textContent = isReverseMode ? '🔄 MODE: REVERSE (INVERTED)' : '➡️ MODE: STRAIGHT (DRAGON RIDER)';
+        btn.style.background = isReverseMode ? '#ff9800' : '#73f7ff';
+      }
 
       // Upcoming Draw
       document.getElementById('nextPeriod').textContent = state.nextPeriod ? `Period #${state.nextPeriod}` : 'Period #--';
@@ -101,7 +118,8 @@
       sigEl.textContent = rec;
       sigEl.className = `signal-val ${rec === 'BIG' ? 'signal-big' : 'signal-small'}`;
 
-      document.getElementById('signalStake').textContent = `Next Stake: ₹${stake} on ${rec}`;
+      document.getElementById('signalModeBadge').textContent = isReverseMode ? 'AI REVERSE INVERTED PREDICTION' : 'AI DRAGON PREDICTION';
+      document.getElementById('signalStake').textContent = `Next Stake: ₹${stake} on ${rec} (${isReverseMode ? 'Inverted' : 'Straight'})`;
 
       // Update button appearance
       if (state.running !== undefined && state.running !== isBotRunning) {
@@ -129,7 +147,7 @@
                 <td><span class="${b.prediction === 'BIG' ? 'tag-big' : 'tag-small'}">${b.prediction}</span></td>
                 <td style="color:#73f7ff;font-weight:bold;">⏳ DRAWING...</td>
                 <td style="color:#73f7ff;font-weight:bold;">-</td>
-                <td style="color:#f7c873;">-₹${state.currentStake || 4}</td>
+                <td style="color:#f7c873;">-₹${state.currentStake || 1}</td>
                 <td style="color:#9aa3b8;font-size:9.5px;">${b.time}</td>
               </tr>
             `;

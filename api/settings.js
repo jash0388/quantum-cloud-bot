@@ -1,17 +1,18 @@
 /**
  * Serverless Cloud Telemetry & Remote Control API for Vercel
- * 24/7 WinGo Continuous Martingale Bot
+ * Supports Reverse/Straight Inverter Mode Toggle
  */
 
 let globalCloudState = {
   gameType: 'WINGO',
-  botName: 'WinGo 24/7 Martingale Bot',
-  startBankroll: 480.00,
-  currentBalance: 480.00,
+  botName: 'WinGo Dragon AI Bot',
+  startBankroll: 275.00,
+  currentBalance: 275.00,
   sessionProfit: 0.00,
-  currentStake: 4,
-  baseBet: 4,
-  status: '24/7 CONTINUOUS ACTIVE',
+  currentStake: 1,
+  baseBet: 1,
+  reverseMode: false,
+  status: '24/7 ACTIVE [STRAIGHT (DRAGON)]',
   running: true,
   wins: 0,
   losses: 0,
@@ -59,7 +60,9 @@ module.exports = (req, res) => {
         timestamp: Date.now()
       };
 
-      if (data.payload) {
+      if (data.commandType === 'TOGGLE_REVERSE') {
+        globalCloudState.reverseMode = !globalCloudState.reverseMode;
+      } else if (data.payload) {
         if (data.payload.baseBet != null) globalCloudState.baseBet = Number(data.payload.baseBet);
         if (data.payload.startBankroll != null) {
           globalCloudState.startBankroll = Number(data.payload.startBankroll);
