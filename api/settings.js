@@ -1,33 +1,25 @@
 /**
  * Serverless Cloud Telemetry & Remote Control API for Vercel
- * Supports WinGo Lottery & WM Casino Baccarat Live Monitoring
+ * 24/7 WinGo Continuous Martingale Bot
  */
 
 let globalCloudState = {
-  gameType: 'BACCARAT', // 'BACCARAT' | 'WINGO'
-  botName: 'WM Casino Baccarat AI',
-  startBankroll: 435.18,
-  currentBalance: 435.18,
+  gameType: 'WINGO',
+  botName: 'WinGo 24/7 Martingale Bot',
+  startBankroll: 480.00,
+  currentBalance: 480.00,
   sessionProfit: 0.00,
-  currentStake: 10,
-  baseBet: 10,
-  martingaleLevel: 0,
-  maxMartingale: 5,
-  targetProfit: 200,
-  stopLoss: 500,
-  status: 'ACTIVE SCANNING',
-  running: false,
+  currentStake: 4,
+  baseBet: 4,
+  status: '24/7 CONTINUOUS ACTIVE',
+  running: true,
   wins: 0,
   losses: 0,
-  targetTable: 'Baccarat 17',
-  targetChoice: 'BANKER', // 'PLAYER' | 'BANKER'
-  timer: 22,
+  nextPeriod: '--',
+  nextPred: '--',
+  timer: 60,
   lastUpdated: Date.now(),
-  history: [
-    { period: 'Bac 16', prediction: 'PLAYER', number: 'P:7 vs B:1', won: true, profit: 9.50, time: '11:19:15 AM' },
-    { period: 'Bac 15', prediction: 'BANKER', number: 'P:2 vs B:8', won: true, profit: 9.50, time: '11:18:20 AM' },
-    { period: 'Bac 17', prediction: 'PLAYER', number: 'P:4 vs B:9', won: false, profit: -10.00, time: '11:17:10 AM' }
-  ],
+  history: [],
   remoteCommand: null
 };
 
@@ -69,8 +61,10 @@ module.exports = (req, res) => {
 
       if (data.payload) {
         if (data.payload.baseBet != null) globalCloudState.baseBet = Number(data.payload.baseBet);
-        if (data.payload.targetProfit != null) globalCloudState.targetProfit = Number(data.payload.targetProfit);
-        if (data.payload.stopLoss != null) globalCloudState.stopLoss = Number(data.payload.stopLoss);
+        if (data.payload.startBankroll != null) {
+          globalCloudState.startBankroll = Number(data.payload.startBankroll);
+          globalCloudState.currentBalance = Number(data.payload.startBankroll);
+        }
         if (data.payload.running != null) globalCloudState.running = Boolean(data.payload.running);
       }
       globalCloudState.lastUpdated = Date.now();

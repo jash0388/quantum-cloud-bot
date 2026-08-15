@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>WM BACCARAT SNIPER — 24/7 Live Cloud Telemetry & Remote Control</title>
+  <title>WINGO 24/7 MARTINGALE — Live Cloud Telemetry & Remote Control</title>
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
@@ -13,10 +13,10 @@
     <!-- HEADER -->
     <header class="top-bar">
       <div class="brand">
-        <div class="brand-icon" style="background: linear-gradient(135deg, #73f7ff, #00e676);"><i class="fa-solid fa-gem"></i></div>
+        <div class="brand-icon"><i class="fa-solid fa-bolt"></i></div>
         <div>
-          <h1 class="brand-title">WM BACCARAT AI</h1>
-          <span class="brand-sub">MULTI-TABLE TREND SNIPER & 24/7 REMOTE</span>
+          <h1 class="brand-title">WINGO 24/7 MARTINGALE</h1>
+          <span class="brand-sub">CONTINUOUS NON-STOP AUTO-BET & REMOTE</span>
         </div>
       </div>
       <div class="cloud-status status-live" id="cloudStatus">
@@ -29,82 +29,82 @@
     <section class="stats-grid">
       <div class="stat-card">
         <span class="stat-label">TOTAL WALLET BALANCE</span>
-        <div class="stat-val stat-gold" id="valBalance">₹435.18</div>
-        <span class="stat-sub" id="valStartBal">Target: +₹200.00</span>
+        <div class="stat-val stat-gold" id="valBalance">₹480.00</div>
+        <span class="stat-sub" id="valStartBal">Start: ₹480.00</span>
       </div>
 
       <div class="stat-card">
         <span class="stat-label">SESSION PROFIT</span>
         <div class="stat-val stat-green" id="valPnl">+₹0.00</div>
-        <span class="stat-sub" id="valWinRate">Win Rate: 0% (0W / 0L)</span>
+        <span class="stat-sub" id="valWinRate">Score: 0W / 0L</span>
       </div>
 
       <div class="stat-card">
-        <span class="stat-label">CURRENT STAKE</span>
-        <div class="stat-val stat-cyan" id="valStake">₹10</div>
-        <span class="stat-sub" id="valBaseLbl">Step 0 (Base: ₹10)</span>
+        <span class="stat-label">NEXT BET STAKE</span>
+        <div class="stat-val stat-cyan" id="valStake">₹4</div>
+        <span class="stat-sub" id="valBaseLbl">Base Bet: ₹4</span>
       </div>
     </section>
 
     <!-- REMOTE CONTROLLER PANEL -->
-    <section class="settings-card" style="border: 1px solid #73f7ff; box-shadow: 0 4px 25px rgba(115,247,255,0.15);">
+    <section class="settings-card" style="border: 1px solid #00e676; box-shadow: 0 4px 25px rgba(0,230,118,0.15);">
       <div class="settings-header">
-        <span><i class="fa-solid fa-gamepad" style="color:#73f7ff;"></i> REMOTE CONTROL (FROM PHONE)</span>
-        <span style="font-size:10px;color:#73f7ff;font-weight:bold;" id="cmdFeedback">READY</span>
+        <span><i class="fa-solid fa-gamepad" style="color:#00e676;"></i> REMOTE CONTROL (FROM PHONE)</span>
+        <span style="font-size:10px;color:#00e676;font-weight:bold;" id="cmdFeedback">READY</span>
       </div>
       <div class="config-grid" style="grid-template-columns: 1fr 1fr; margin-top:8px;">
         <div class="config-item">
           <label>Base Bet (₹)</label>
           <div style="display:flex;gap:4px;margin-top:4px;">
-            <input type="number" id="remoteBaseBet" value="10" min="1" style="width:60px;">
-            <button class="btn-save-mini" id="btnSetBaseBet" style="background:#73f7ff;color:#000;font-weight:900;border:none;border-radius:6px;padding:4px 8px;cursor:pointer;">SET</button>
+            <input type="number" id="remoteBaseBet" value="4" min="1" style="width:60px;">
+            <button class="btn-save-mini" id="btnSetBaseBet" style="background:#00e676;color:#000;font-weight:900;border:none;border-radius:6px;padding:4px 8px;cursor:pointer;">SET</button>
           </div>
         </div>
         <div class="config-item">
-          <label>Target Profit (₹)</label>
+          <label>Start Bankroll (₹)</label>
           <div style="display:flex;gap:4px;margin-top:4px;">
-            <input type="number" id="remoteTargetProfit" value="200" min="10" style="width:60px;">
-            <button class="btn-save-mini" id="btnSetProfit" style="background:#73f7ff;color:#000;font-weight:900;border:none;border-radius:6px;padding:4px 8px;cursor:pointer;">SET</button>
+            <input type="number" id="remoteStartBal" value="480" min="1" style="width:60px;">
+            <button class="btn-save-mini" id="btnSetStartBal" style="background:#00e676;color:#000;font-weight:900;border:none;border-radius:6px;padding:4px 8px;cursor:pointer;">SET</button>
           </div>
         </div>
       </div>
 
       <div style="display:flex;gap:8px;margin-top:10px;">
-        <button id="btnRemoteToggle" style="flex:1;padding:10px;border:none;border-radius:8px;background:#00e676;color:#000;font-weight:900;font-size:12px;cursor:pointer;">▶ START BOT</button>
-        <button id="btnResetSession" style="padding:10px;border:none;border-radius:8px;background:rgba(255,255,255,0.08);color:#9aa3b8;font-weight:900;font-size:11px;cursor:pointer;">🔄 RESET</button>
+        <button id="btnRemoteToggle" style="flex:1;padding:10px;border:none;border-radius:8px;background:#ff4757;color:#fff;font-weight:900;font-size:12px;cursor:pointer;">⏹ PAUSE BOT</button>
+        <button id="btnResetSession" style="padding:10px;border:none;border-radius:8px;background:rgba(255,255,255,0.08);color:#9aa3b8;font-weight:900;font-size:11px;cursor:pointer;">🔄 RESET BASE</button>
       </div>
     </section>
 
-    <!-- ACTIVE SNIPE OPPORTUNITY CARD -->
-    <section class="round-card" style="border: 1px solid rgba(0,230,118,0.4);">
+    <!-- UPCOMING DRAW CARD -->
+    <section class="round-card">
       <div class="round-header">
         <div>
-          <span class="round-tag"><i class="fa-solid fa-crosshairs"></i> TARGET TABLE OPPORTUNITY</span>
-          <div class="round-id" id="targetTable" style="font-size:18px;color:#73f7ff;">Baccarat 17</div>
+          <span class="round-tag"><i class="fa-solid fa-dice"></i> UPCOMING DRAW (WINGO 1M)</span>
+          <div class="round-id" id="nextPeriod">Period #--</div>
         </div>
         <div class="timer-box">
-          <div class="timer-num" id="drawTimer">22</div>
+          <div class="timer-num" id="drawTimer">--</div>
           <span class="timer-lbl">SEC</span>
         </div>
       </div>
 
       <div class="signal-display" style="margin-top:10px;">
-        <div class="signal-badge">RECOMMENDED BET</div>
-        <div class="signal-val" id="signalVal" style="color:#ff4757;font-size:26px;font-weight:900;">BANKER</div>
-        <div class="signal-stake-tag" id="signalStake">Snipe Stake: ₹10 on Banker</div>
+        <div class="signal-badge">AI TREND PREDICTION</div>
+        <div class="signal-val" id="signalVal">BIG</div>
+        <div class="signal-stake-tag" id="signalStake">Current Stake: ₹4 on BIG</div>
       </div>
     </section>
 
-    <!-- LIVE BACCARAT BET HISTORY -->
+    <!-- LIVE BET FEED -->
     <section class="history-card">
-      <h3 class="section-title"><i class="fa-solid fa-list-check"></i> LIVE BACCARAT ROUND FEED</h3>
+      <h3 class="section-title"><i class="fa-solid fa-list-check"></i> LIVE BET FEED</h3>
       <div class="table-container">
         <table class="history-table">
           <thead>
             <tr>
-              <th>TABLE</th>
-              <th>BET</th>
-              <th>CARDS</th>
+              <th>PERIOD</th>
+              <th>PREDICTION</th>
+              <th>DRAW RESULT</th>
               <th>OUTCOME</th>
               <th>P/L</th>
               <th>TIME</th>
@@ -112,7 +112,7 @@
           </thead>
           <tbody id="last5Body">
             <tr>
-              <td colspan="6" style="text-align:center;color:#9aa3b8;">Streaming live Baccarat results from your tablet...</td>
+              <td colspan="6" style="text-align:center;color:#9aa3b8;">Streaming live rounds from tablet...</td>
             </tr>
           </tbody>
         </table>
