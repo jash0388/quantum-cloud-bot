@@ -53,23 +53,30 @@
         <span style="font-size:10px;color:#00e676;font-weight:bold;" id="cmdFeedback">READY</span>
       </div>
       
-      <!-- Straight / Reverse Mode Switch -->
-      <button id="btnRemoteMode" style="width:100%;padding:10px;border:none;border-radius:10px;background:#73f7ff;color:#000;font-weight:900;font-size:12px;cursor:pointer;margin-top:8px;transition:0.2s;">
-        ➡️ MODE: STRAIGHT (DRAGON RIDER)
+      <!-- 3-Way Strategy Mode Switch -->
+      <button id="btnRemoteMode" style="width:100%;padding:10px;border:none;border-radius:10px;background:linear-gradient(90deg, #ff007f, #7928ca);color:#fff;font-weight:900;font-size:12px;cursor:pointer;margin-top:8px;transition:0.2s;">
+        ⚡ MODE: B-S-B-S (PING-PONG ALTERNATOR)
       </button>
 
-      <div class="config-grid" style="grid-template-columns: 1fr 1fr; margin-top:8px;">
+      <div class="config-grid" style="grid-template-columns: 1fr 1fr 1fr; margin-top:8px;">
         <div class="config-item">
           <label>Base Bet (₹)</label>
           <div style="display:flex;gap:4px;margin-top:4px;">
-            <input type="number" id="remoteBaseBet" value="1" min="1" style="width:60px;">
+            <input type="number" id="remoteBaseBet" value="2" min="1" style="width:100%;">
             <button class="btn-save-mini" id="btnSetBaseBet" style="background:#f7c873;color:#000;font-weight:900;border:none;border-radius:6px;padding:4px 8px;cursor:pointer;">SET</button>
           </div>
         </div>
         <div class="config-item">
-          <label>Start Bankroll (₹)</label>
+          <label>Take Profit (₹)</label>
           <div style="display:flex;gap:4px;margin-top:4px;">
-            <input type="number" id="remoteStartBal" value="275" min="1" style="width:60px;">
+            <input type="number" id="remoteTakeProfit" value="500" min="1" style="width:100%;color:#00e676;font-weight:bold;">
+            <button class="btn-save-mini" id="btnSetTakeProfit" style="background:#00e676;color:#000;font-weight:900;border:none;border-radius:6px;padding:4px 8px;cursor:pointer;">SET</button>
+          </div>
+        </div>
+        <div class="config-item">
+          <label>Start Balance (₹)</label>
+          <div style="display:flex;gap:4px;margin-top:4px;">
+            <input type="number" id="remoteStartBal" value="402" min="1" style="width:100%;">
             <button class="btn-save-mini" id="btnSetStartBal" style="background:#f7c873;color:#000;font-weight:900;border:none;border-radius:6px;padding:4px 8px;cursor:pointer;">SET</button>
           </div>
         </div>

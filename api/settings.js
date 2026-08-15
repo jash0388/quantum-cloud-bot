@@ -6,19 +6,20 @@
 let globalCloudState = {
   gameType: 'WINGO',
   botName: 'WinGo Dragon AI Bot',
-  startBankroll: 275.00,
-  currentBalance: 275.00,
+  startBankroll: 402.32,
+  currentBalance: 402.32,
+  takeProfitTarget: 500.00,
   sessionProfit: 0.00,
-  currentStake: 1,
-  baseBet: 1,
+  currentStake: 2,
+  baseBet: 2,
   reverseMode: false,
-  status: '24/7 ACTIVE [STRAIGHT (DRAGON)]',
+  status: '24/7 ACTIVE',
   running: true,
   wins: 0,
   losses: 0,
   nextPeriod: '--',
   nextPred: '--',
-  timer: 60,
+  timer: 30,
   lastUpdated: Date.now(),
   history: [],
   remoteCommand: null
@@ -64,6 +65,7 @@ module.exports = (req, res) => {
         globalCloudState.reverseMode = !globalCloudState.reverseMode;
       } else if (data.payload) {
         if (data.payload.baseBet != null) globalCloudState.baseBet = Number(data.payload.baseBet);
+        if (data.payload.takeProfitTarget != null) globalCloudState.takeProfitTarget = Number(data.payload.takeProfitTarget);
         if (data.payload.startBankroll != null) {
           globalCloudState.startBankroll = Number(data.payload.startBankroll);
           globalCloudState.currentBalance = Number(data.payload.startBankroll);

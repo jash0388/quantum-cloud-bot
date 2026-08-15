@@ -36,22 +36,48 @@
     }
   }
 
+  let currentStrategyMode = 'TGX_STATIC';
+
   // Hook up Remote Control Buttons
   document.getElementById('btnRemoteMode').onclick = () => {
-    isReverseMode = !isReverseMode;
+    if (currentStrategyMode === 'TGX_STATIC') currentStrategyMode = 'BS_ALTERNATOR';
+    else if (currentStrategyMode === 'BS_ALTERNATOR') currentStrategyMode = 'STRAIGHT';
+    else if (currentStrategyMode === 'STRAIGHT') currentStrategyMode = 'REVERSE';
+    else currentStrategyMode = 'TGX_STATIC';
+
     const btn = document.getElementById('btnRemoteMode');
-    btn.textContent = isReverseMode ? '🔄 MODE: REVERSE (INVERTED)' : '➡️ MODE: STRAIGHT (DRAGON RIDER)';
-    btn.style.background = isReverseMode ? '#ff9800' : '#73f7ff';
-    sendRemoteCommand('TOGGLE_REVERSE', {});
+    if (currentStrategyMode === 'TGX_STATIC') {
+      btn.textContent = '⚡ MODE: TGX 5-NODE STATIC (30S)';
+      btn.style.background = 'linear-gradient(135deg, #22c55e, #f59e0b)';
+      btn.style.color = '#fff';
+    } else if (currentStrategyMode === 'BS_ALTERNATOR') {
+      btn.textContent = '⚡ MODE: B-S-B-S (PING-PONG ALTERNATOR)';
+      btn.style.background = 'linear-gradient(90deg, #ff007f, #7928ca)';
+      btn.style.color = '#fff';
+    } else if (currentStrategyMode === 'REVERSE') {
+      btn.textContent = '🔄 MODE: REVERSE (INVERTED CHOP)';
+      btn.style.background = '#ff9800';
+      btn.style.color = '#fff';
+    } else {
+      btn.textContent = '➡️ MODE: STRAIGHT (DRAGON RIDER)';
+      btn.style.background = '#73f7ff';
+      btn.style.color = '#000';
+    }
+    sendRemoteCommand('SET_MODE', { mode: currentStrategyMode });
   };
 
   document.getElementById('btnSetBaseBet').onclick = () => {
-    const val = parseInt(document.getElementById('remoteBaseBet').value) || 1;
+    const val = parseInt(document.getElementById('remoteBaseBet').value) || 2;
     sendRemoteCommand('SET_BASE_BET', { baseBet: val });
   };
 
+  document.getElementById('btnSetTakeProfit').onclick = () => {
+    const val = parseFloat(document.getElementById('remoteTakeProfit').value) || 500;
+    sendRemoteCommand('SET_TAKE_PROFIT', { takeProfitTarget: val });
+  };
+
   document.getElementById('btnSetStartBal').onclick = () => {
-    const val = parseFloat(document.getElementById('remoteStartBal').value) || 275;
+    const val = parseFloat(document.getElementById('remoteStartBal').value) || 402;
     sendRemoteCommand('SET_START_BALANCE', { startBankroll: val });
   };
 
