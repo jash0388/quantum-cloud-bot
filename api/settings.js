@@ -1,34 +1,34 @@
 /**
- * Serverless Cloud Telemetry & Two-Way Control API for Vercel
- * Supports real-time telemetry streaming AND live remote commands from Phone -> Tablet!
+ * Serverless Cloud Telemetry & Remote Control API for Vercel
+ * Supports WinGo Lottery & WM Casino Baccarat Live Monitoring
  */
 
 let globalCloudState = {
-  botName: 'jash perc win',
-  startBankroll: 480.00,
-  currentBalance: 480.00,
+  gameType: 'BACCARAT', // 'BACCARAT' | 'WINGO'
+  botName: 'WM Casino Baccarat AI',
+  startBankroll: 435.18,
+  currentBalance: 435.18,
   sessionProfit: 0.00,
-  currentStake: 4,
-  baseBet: 4,
-  targetPct: 13,
-  currentRoundNum: 2,
-  totalRounds: 14,
-  restMinutes: 10,
-  targetBalance: 542.40,
-  roundProgress: 0.00,
-  roundTarget: 62.40,
-  status: 'ACTIVE',
-  running: true,
+  currentStake: 10,
+  baseBet: 10,
+  martingaleLevel: 0,
+  maxMartingale: 5,
+  targetProfit: 200,
+  stopLoss: 500,
+  status: 'ACTIVE SCANNING',
+  running: false,
   wins: 0,
   losses: 0,
-  nextPeriod: '--',
-  nextPred: '--',
-  pendingBet: null,
-  timer: 60,
+  targetTable: 'Baccarat 17',
+  targetChoice: 'BANKER', // 'PLAYER' | 'BANKER'
+  timer: 22,
   lastUpdated: Date.now(),
-  history: [],
-  // Remote Command Queue (Commands sent from phone to tablet)
-  remoteCommand: null, // { type: 'SET_SETTINGS' | 'TOGGLE_BOT' | 'SKIP_REST' | 'SET_BALANCE', payload: {...}, timestamp: 123 }
+  history: [
+    { period: 'Bac 16', prediction: 'PLAYER', number: 'P:7 vs B:1', won: true, profit: 9.50, time: '11:19:15 AM' },
+    { period: 'Bac 15', prediction: 'BANKER', number: 'P:2 vs B:8', won: true, profit: 9.50, time: '11:18:20 AM' },
+    { period: 'Bac 17', prediction: 'PLAYER', number: 'P:4 vs B:9', won: false, profit: -10.00, time: '11:17:10 AM' }
+  ],
+  remoteCommand: null
 };
 
 module.exports = (req, res) => {
@@ -43,7 +43,7 @@ module.exports = (req, res) => {
   if (req.method === 'POST') {
     const data = req.body || {};
 
-    // 1. Tablet Sending Telemetry Update
+    // 1. Tablet Sending Telemetry
     if (data.isTelemetry) {
       for (const key of Object.keys(data)) {
         if (key === 'history' && Array.isArray(data.history)) {
@@ -54,34 +54,29 @@ module.exports = (req, res) => {
       }
       globalCloudState.lastUpdated = Date.now();
       
-      // Return any pending remote command back to tablet, then clear it!
       const cmdToSend = globalCloudState.remoteCommand;
       globalCloudState.remoteCommand = null;
       return res.json({ success: true, command: cmdToSend, state: globalCloudState });
     }
 
-    // 2. User Sending Remote Control Command from Phone Dashboard
+    // 2. Phone Sending Remote Control Command
     if (data.isRemoteControl) {
       globalCloudState.remoteCommand = {
-        type: data.commandType, // e.g. 'SET_BASE_BET', 'SET_TARGET_PCT', 'TOGGLE_RUNNING', 'RESET_SESSION', 'SET_BALANCE'
+        type: data.commandType,
         payload: data.payload,
         timestamp: Date.now()
       };
 
-      // Optimistically update cloud state
       if (data.payload) {
         if (data.payload.baseBet != null) globalCloudState.baseBet = Number(data.payload.baseBet);
-        if (data.payload.targetPct != null) globalCloudState.targetPct = Number(data.payload.targetPct);
-        if (data.payload.totalRounds != null) globalCloudState.totalRounds = Number(data.payload.totalRounds);
-        if (data.payload.restMinutes != null) globalCloudState.restMinutes = Number(data.payload.restMinutes);
-        if (data.payload.currentBalance != null) globalCloudState.currentBalance = Number(data.payload.currentBalance);
+        if (data.payload.targetProfit != null) globalCloudState.targetProfit = Number(data.payload.targetProfit);
+        if (data.payload.stopLoss != null) globalCloudState.stopLoss = Number(data.payload.stopLoss);
         if (data.payload.running != null) globalCloudState.running = Boolean(data.payload.running);
       }
       globalCloudState.lastUpdated = Date.now();
       return res.json({ success: true, message: 'Remote command queued for tablet', state: globalCloudState });
     }
 
-    // Generic Update
     for (const key of Object.keys(data)) {
       if (data[key] !== undefined) globalCloudState[key] = data[key];
     }

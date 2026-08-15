@@ -1,14 +1,13 @@
 /**
- * JASH PERC WIN — Cloud Live Telemetry & Remote Control Client
+ * WM Casino Baccarat — Cloud Live Telemetry & Remote Control Client
  */
 
 (function () {
   'use strict';
 
   const CLOUD_API = '/api/settings';
-  let isBotRunning = true;
+  let isBotRunning = false;
 
-  // Send Remote Command from Phone -> Cloud -> Tablet
   async function sendRemoteCommand(commandType, payload = {}) {
     const feedback = document.getElementById('cmdFeedback');
     if (feedback) { feedback.textContent = 'SENDING...'; feedback.style.color = '#f7c873'; }
@@ -38,31 +37,34 @@
 
   // Hook up Remote Control Buttons
   document.getElementById('btnSetBaseBet').onclick = () => {
-    const val = parseInt(document.getElementById('remoteBaseBet').value) || 4;
+    const val = parseInt(document.getElementById('remoteBaseBet').value) || 10;
     sendRemoteCommand('SET_BASE_BET', { baseBet: val });
   };
 
-  document.getElementById('btnSetPct').onclick = () => {
-    const val = parseFloat(document.getElementById('remoteTargetPct').value) || 13;
-    sendRemoteCommand('SET_TARGET_PCT', { targetPct: val });
+  document.getElementById('btnSetProfit').onclick = () => {
+    const val = parseFloat(document.getElementById('remoteTargetProfit').value) || 200;
+    sendRemoteCommand('SET_TARGET_PROFIT', { targetProfit: val });
   };
 
   document.getElementById('btnRemoteToggle').onclick = () => {
     isBotRunning = !isBotRunning;
     const btn = document.getElementById('btnRemoteToggle');
     if (isBotRunning) {
-      btn.textContent = '⏹ PAUSE TABLET BOT';
+      btn.textContent = '⏹ PAUSE BOT';
       btn.style.background = '#ff4757';
+      btn.style.color = '#fff';
     } else {
-      btn.textContent = '▶ START TABLET BOT';
+      btn.textContent = '▶ START BOT';
       btn.style.background = '#00e676';
       btn.style.color = '#000';
     }
     sendRemoteCommand('TOGGLE_RUNNING', { running: isBotRunning });
   };
 
-  document.getElementById('btnRemoteSkipRest').onclick = () => {
-    sendRemoteCommand('SKIP_REST', {});
+  document.getElementById('btnResetSession').onclick = () => {
+    if (confirm("Reset Baccarat session profit on tablet?")) {
+      sendRemoteCommand('RESET_SESSION', {});
+    }
   };
 
   async function pollLiveTelemetry() {
@@ -71,23 +73,18 @@
       const state = await res.json();
       if (!state) return;
 
-      const startBank = state.startBankroll || 480.00;
+      const currentBal = state.currentBalance != null ? state.currentBalance : 435.18;
       const profit = state.sessionProfit != null ? state.sessionProfit : 0;
-      const currentTotal = state.currentBalance != null ? state.currentBalance : (startBank + profit);
-      const stake = state.currentStake || state.baseBet || 4;
-      const roundNum = state.currentRoundNum || 2;
-      const totRounds = state.totalRounds || 14;
-      const targetPct = state.targetPct || 13;
-      const status = state.status || 'ACTIVE BETTING';
-      const targetGoal = state.targetBalance || (startBank * (1 + (targetPct / 100)));
+      const stake = state.currentStake || state.baseBet || 10;
+      const step = state.martingaleLevel || 0;
       const wins = state.wins || 0;
       const losses = state.losses || 0;
       const tot = wins + losses;
-      const wr = tot > 0 ? ((wins / tot) * 100).toFixed(0) : 100;
+      const wr = tot > 0 ? ((wins / tot) * 100).toFixed(0) : 0;
 
-      // Update UI Cards
-      document.getElementById('valBalance').textContent = `₹${currentTotal.toFixed(2)}`;
-      document.getElementById('valStartBal').textContent = `Started: ₹${startBank.toFixed(2)}`;
+      // Update UI
+      document.getElementById('valBalance').textContent = `₹${currentBal.toFixed(2)}`;
+      document.getElementById('valStartBal').textContent = `Target: +₹${state.targetProfit || 200}`;
 
       const pnlEl = document.getElementById('valPnl');
       pnlEl.textContent = `${profit >= 0 ? '+' : ''}₹${profit.toFixed(2)}`;
@@ -95,51 +92,44 @@
 
       document.getElementById('valWinRate').textContent = `Win Rate: ${wr}% (${wins}W / ${losses}L)`;
       document.getElementById('valStake').textContent = `₹${stake}`;
-      document.getElementById('valBaseLbl').textContent = `Base: ₹${state.baseBet || 4}`;
+      document.getElementById('valBaseLbl').textContent = `Step ${step} (Base: ₹${state.baseBet || 10})`;
 
-      // Stage & Progress
-      document.getElementById('valStageBadge').textContent = `🎯 ROUND ${roundNum} OF ${totRounds} (+${targetPct}%)`;
-      document.getElementById('valStatus').textContent = status;
-      document.getElementById('valStatus').style.color = status.includes('REST') ? '#73f7ff' : (status.includes('BET') || status.includes('ACTIVE') ? '#00e676' : '#ff4757');
-
-      document.getElementById('valGoalTotal').textContent = `₹${targetGoal.toFixed(2)} (+${targetPct}%)`;
-      document.getElementById('valTargetPct').textContent = `+${targetPct}% per stage (${totRounds} total)`;
-
-      // Upcoming round & signal
-      document.getElementById('targetPeriod').textContent = state.nextPeriod || '--';
-      const remSeconds = 60 - (new Date().getSeconds() % 60);
-      document.getElementById('drawTimer').textContent = remSeconds;
+      // Target Table & Recommended Bet
+      document.getElementById('targetTable').textContent = state.targetTable || 'Scanning...';
+      document.getElementById('drawTimer').textContent = state.timer != null ? state.timer : '--';
 
       const sigEl = document.getElementById('signalVal');
-      sigEl.textContent = state.nextPred || '--';
-      sigEl.style.color = state.nextPred === 'BIG' ? '#f7c873' : (state.nextPred === 'SMALL' ? '#73f7ff' : '#9aa3b8');
-      
-      const isBetPending = state.pendingBet != null;
-      document.getElementById('signalStake').textContent = isBetPending ? 
-        `Active Stake: ₹${state.pendingBet.stake} on ${state.pendingBet.pred} (⏳ Placed)` : 
-        `Next Stake: ₹${stake} on ${state.nextPred || '--'}`;
+      const rec = state.targetChoice || state.nextPred || 'BANKER';
+      sigEl.textContent = rec;
+      sigEl.style.color = rec === 'PLAYER' ? '#73f7ff' : '#ff4757';
+
+      document.getElementById('signalStake').textContent = `Snipe Stake: ₹${stake} on ${rec}`;
+
+      // Update Start/Pause button appearance if synced
+      if (state.running !== undefined && state.running !== isBotRunning) {
+        isBotRunning = state.running;
+        const btn = document.getElementById('btnRemoteToggle');
+        if (isBotRunning) {
+          btn.textContent = '⏹ PAUSE BOT';
+          btn.style.background = '#ff4757';
+          btn.style.color = '#fff';
+        } else {
+          btn.textContent = '▶ START BOT';
+          btn.style.background = '#00e676';
+          btn.style.color = '#000';
+        }
+      }
 
       // History Table
       const tbody = document.getElementById('last5Body');
       if (state.history && state.history.length > 0) {
         tbody.innerHTML = state.history.slice(0, 15).map(b => {
-          if (b.isPending) {
-            return `
-              <tr style="background:rgba(115,247,255,0.08);border-left:3px solid #73f7ff;">
-                <td><strong>${b.period}</strong></td>
-                <td><span style="color:${b.prediction === 'BIG' ? '#f7c873' : '#73f7ff'};font-weight:800;">${b.prediction}</span></td>
-                <td style="color:#73f7ff;font-style:italic;">Drawing...</td>
-                <td style="color:#f7c873;font-weight:800;">⏳ PENDING</td>
-                <td style="color:#9aa3b8;font-weight:bold;">-</td>
-                <td style="color:#9aa3b8;font-size:9.5px;">${b.time}</td>
-              </tr>
-            `;
-          }
+          const isPlayer = b.prediction === 'PLAYER';
           return `
             <tr>
               <td><strong>${b.period}</strong></td>
-              <td><span style="color:${b.prediction === 'BIG' ? '#f7c873' : '#73f7ff'};font-weight:800;">${b.prediction}</span></td>
-              <td>${b.number}</td>
+              <td><span style="color:${isPlayer ? '#73f7ff' : '#ff4757'};font-weight:800;">${b.prediction}</span></td>
+              <td style="font-size:11px;">${b.number}</td>
               <td class="${b.won ? 'win-tag' : 'loss-tag'}">${b.won ? 'WIN 🏆' : 'LOSS 💀'}</td>
               <td class="${b.profit >= 0 ? 'win-tag' : 'loss-tag'}">${b.profit >= 0 ? '+' : ''}₹${Math.abs(b.profit).toFixed(2)}</td>
               <td style="color:#9aa3b8;font-size:9.5px;">${b.time}</td>
