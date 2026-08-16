@@ -1,142 +1,793 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <meta http-equiv="Pragma" content="no-cache">
-  <meta http-equiv="Expires" content="0">
-  <title>WINGO DRAGON AI — Live Telemetry & Inverter Control</title>
-  <link rel="stylesheet" href="style.css?v=10.2">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>🏆 BDG WIN · BIG/SMALL 🏆</title>
+    <style>
+        :root {
+            --bg-main: #020205;
+            --gold: #ffdf00;
+            --gold-glow: rgba(255, 223, 0, 0.4);
+            --neon-red: #ff2a2a;
+            --neon-green: #00ff66;
+            --btn-green: #00e676;
+            --btn-red: #ff3d00;
+            --btn-blue: #00b0ff;
+            --text-light: #ffffff;
+            --card-bg: #07070c;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-light);
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 14px;
+            background-image: radial-gradient(circle at top, #0c0822 0%, #020205 100%);
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 440px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        /* Top Header Design */
+        .header-title {
+            background: rgba(7, 7, 12, 0.7);
+            border: 2px solid var(--gold);
+            border-radius: 22px;
+            text-align: center;
+            padding: 12px 10px;
+            box-shadow: 0 0 15px rgba(255, 223, 0, 0.2);
+        }
+        .header-title h1 {
+            font-size: 19px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            color: var(--gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .header-title p {
+            font-size: 11px;
+            letter-spacing: 3px;
+            color: #dcdcdc;
+            margin-top: 4px;
+            font-weight: 700;
+        }
+
+        /* Live Wallet Metrics Bar */
+        .wallet-metrics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+        }
+        .metric-card {
+            background: rgba(13, 13, 22, 0.9);
+            border: 1px solid rgba(255, 223, 0, 0.3);
+            border-radius: 14px;
+            padding: 10px 8px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+        .metric-lbl {
+            font-size: 9.5px;
+            color: #9aa3b8;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        .metric-val {
+            font-size: 14.5px;
+            font-weight: 900;
+            margin-top: 3px;
+        }
+        .val-gold { color: var(--gold); text-shadow: 0 0 8px rgba(255,223,0,0.4); }
+        .val-green { color: var(--neon-green); text-shadow: 0 0 8px rgba(0,255,102,0.4); }
+        .val-cyan { color: #00f5ff; }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 12px;
+        }
+        .tab-btn {
+            flex: 1;
+            background: rgba(255, 42, 42, 0.04);
+            color: #ffffff;
+            border: 1px solid rgba(255, 42, 42, 0.3);
+            padding: 11px;
+            border-radius: 12px;
+            font-weight: 800;
+            font-size: 13.5px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 6px;
+            transition: 0.2s;
+        }
+        .tab-btn.active {
+            border: 2px solid var(--neon-red);
+            background: rgba(255, 42, 42, 0.18);
+            box-shadow: 0 0 15px rgba(255, 42, 42, 0.3);
+        }
+
+        /* Main Predictor Card */
+        .prediction-card {
+            background: var(--card-bg);
+            border: 2px solid var(--neon-red);
+            border-radius: 26px;
+            padding: 22px 16px 18px 16px;
+            text-align: center;
+            box-shadow: 0 0 25px rgba(255, 42, 42, 0.25);
+            position: relative;
+        }
+
+        /* Top-Right Corner Timer */
+        .top-corner-timer {
+            position: absolute;
+            top: 14px;
+            right: 18px;
+            color: var(--gold);
+            font-weight: 900;
+            font-size: 13px;
+            background: rgba(255, 223, 0, 0.08);
+            padding: 4px 10px;
+            border-radius: 8px;
+            border: 1px solid var(--gold);
+            box-shadow: 0 0 8px var(--gold-glow);
+            letter-spacing: 0.5px;
+        }
+
+        .period-header {
+            color: #8a8d93;
+            font-size: 11.5px;
+            letter-spacing: 2px;
+            margin-bottom: 4px;
+            font-weight: 800;
+            text-align: left;
+            padding-left: 6px;
+        }
+        .period-number {
+            font-size: 23px;
+            font-weight: 900;
+            margin-bottom: 16px;
+            color: #ffffff;
+            letter-spacing: 1px;
+            text-align: left;
+            padding-left: 6px;
+        }
+
+        .inner-dashed {
+            border: 1px dashed var(--neon-red);
+            border-radius: 20px;
+            padding: 26px 15px 18px 15px;
+            position: relative;
+            margin-bottom: 16px;
+            background: rgba(0,0,0,0.3);
+        }
+        .premium-badge {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ff1212;
+            color: white;
+            font-size: 10.5px;
+            font-weight: 900;
+            padding: 3px 14px;
+            border-radius: 20px;
+            letter-spacing: 1px;
+            box-shadow: 0 0 10px rgba(255, 18, 18, 0.6);
+        }
+
+        .predicted-size {
+            font-size: 38px;
+            font-weight: 950;
+            margin-bottom: 16px;
+            letter-spacing: 2px;
+        }
+        .size-small { color: #48a3ff; text-shadow: 0 0 15px rgba(72, 163, 255, 0.6); }
+        .size-big { color: #f48c36; text-shadow: 0 0 15px rgba(244, 140, 54, 0.6); }
+
+        /* ==================== 3D BALL LOOK CSS ==================== */
+        .balls-container {
+            display: flex;
+            justify-content: center;
+            gap: 22px;
+        }
+        
+        .ball {
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            font-weight: 900;
+            position: relative;
+            box-shadow: inset -5px -5px 12px rgba(0, 0, 0, 0.4), 
+                        inset 5px 5px 12px rgba(255, 255, 255, 0.25), 
+                        0 4px 10px rgba(0,0,0,0.6);
+            overflow: hidden;
+        }
+
+        .ball::before {
+            content: '';
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: #ffffff;
+            border-radius: 50%;
+            z-index: 1;
+            opacity: 0.9;
+            box-shadow: inset 2px 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .ball::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 10px;
+            width: 36px;
+            height: 14px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 100%);
+            border-radius: 40% / 100%;
+            z-index: 3;
+        }
+
+        .ball-num {
+            position: relative;
+            z-index: 2;
+        }
+
+        .ball-n1, .ball-n3, .ball-n7, .ball-n9 { background: radial-gradient(circle at 35% 35%, #22c55e 0%, #15803d 100%); }
+        .ball-n1 .ball-num, .ball-n3 .ball-num, .ball-n7 .ball-num, .ball-n9 .ball-num { color: #166534; }
+
+        .ball-n2, .ball-n4, .ball-n6, .ball-n8 { background: radial-gradient(circle at 35% 35%, #ef4444 0%, #b91c1c 100%); }
+        .ball-n2 .ball-num, .ball-n4 .ball-num, .ball-n6 .ball-num, .ball-n8 .ball-num { color: #991b1b; }
+
+        .ball-n0 { background: linear-gradient(135deg, #ef4444 50%, #a855f7 50%); }
+        .ball-n0 .ball-num { color: #6b21a8; }
+
+        .ball-n5 { background: linear-gradient(135deg, #22c55e 50%, #a855f7 50%); }
+        .ball-n5 .ball-num { color: #6b21a8; }
+
+        .ball-patch {
+            position: absolute;
+            width: 7px;
+            height: 7px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            z-index: 0;
+        }
+        .patch-l { left: 1px; top: 25px; }
+        .patch-r { right: 1px; top: 25px; }
+        .patch-b { bottom: 1px; left: 25px; }
+
+        .live-status-bar {
+            background: rgba(255, 223, 0, 0.04);
+            border: 1px solid rgba(255, 223, 0, 0.25);
+            border-radius: 30px;
+            padding: 8px 12px;
+            font-size: 11px;
+            color: #ffdf00;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            margin-top: 5px;
+        }
+
+        /* Buttons Grid */
+        .action-row {
+            display: flex;
+            gap: 12px;
+        }
+        .btn {
+            padding: 13px;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 900;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            letter-spacing: 0.5px;
+            transition: 0.2s;
+        }
+        .btn:active { transform: scale(0.97); }
+        .btn-start { background: var(--btn-green); flex: 1; box-shadow: 0 4px 12px rgba(0, 230, 118, 0.3); color: #000; }
+        .btn-stop { background: var(--btn-red); flex: 1; box-shadow: 0 4px 12px rgba(255, 61, 0, 0.3); }
+        .btn-reset { background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255,223,0,0.4); color: var(--gold); }
+        .btn-send { background: var(--btn-blue); width: 100%; box-shadow: 0 4px 12px rgba(0, 176, 255, 0.3); }
+
+        /* History Section UI */
+        .history-section {
+            background: #0d0d16;
+            border: 1px solid #1f1b3a;
+            border-radius: 22px;
+            padding: 16px 10px 12px 10px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+        }
+        .history-title {
+            text-align: center;
+            font-size: 12px;
+            color: #ffffff;
+            font-weight: 800;
+            margin-bottom: 14px;
+            letter-spacing: 0.5px;
+        }
+        .history-title span.gold-text {
+            color: var(--gold);
+        }
+        
+        .table-container {
+            overflow-y: auto;
+            max-height: 380px;
+        }
+        .table-container::-webkit-scrollbar { width: 0px; }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 5px;
+        }
+        th {
+            color: #ff3333;
+            font-weight: 800;
+            font-size: 11px;
+            padding-bottom: 6px;
+            letter-spacing: 0.5px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .history-row {
+            background: #09090f;
+            position: relative;
+        }
+        
+        td {
+            padding: 7px 0;
+            text-align: center;
+            vertical-align: middle;
+            font-size: 13px;
+            font-weight: 700;
+            color: #e2e8f0;
+        }
+
+        .indicator-td {
+            width: 4px;
+            padding: 0;
+            border-top-left-radius: 4px;
+            border-bottom-left-radius: 4px;
+        }
+        .indicator-jackpot { background: #ffdf00; box-shadow: 0 0 8px #ffdf00; }
+        .indicator-win { background: #00ff66; box-shadow: 0 0 8px #00ff66; }
+        .indicator-loss { background: #ff2a2a; }
+
+        .hist-period { 
+            color: #cbd5e1; 
+            font-weight: 600;
+            padding-left: 6px;
+        }
+        
+        .hist-ball-wrapper {
+            transform: scale(0.62);
+            display: inline-block;
+            vertical-align: middle;
+            margin: -10px 0;
+        }
+        
+        .hist-size {
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-weight: 800;
+            font-size: 10px;
+            display: inline-block;
+            letter-spacing: 0.5px;
+        }
+        .hist-size.small { background: #102a43; color: #48a3ff; border: 1px solid #1b4d80; }
+        .hist-size.big { background: #382414; color: #f48c36; border: 1px solid #633d1c; }
+        
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 900;
+            font-size: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+        .status-badge.jackpot { background: linear-gradient(180deg, #ffea00 0%, #d4a000 100%); color: #000000; }
+        .status-badge.win { background: linear-gradient(180deg, #00ff66 0%, #007c32 100%); color: #ffffff; border: 1px solid #00e658; }
+        .status-badge.loss { background: linear-gradient(180deg, #ff3b3b 0%, #880000 100%); color: #ffffff; }
+        
+        .no-data {
+            color: #4b5563;
+            text-align: center;
+            padding-top: 40px;
+            font-style: italic;
+            font-size: 12px;
+        }
+    </style>
 </head>
 <body>
-  <div class="app-container">
 
-    <!-- HEADER -->
-    <header class="top-bar">
-      <div class="brand">
-        <div class="brand-icon" style="background:linear-gradient(135deg,#f7c873,#ff9800);color:#000;"><i class="fa-solid fa-dragon"></i></div>
-        <div>
-          <h1 class="brand-title">WINGO DRAGON AI</h1>
-          <span class="brand-sub">500-ROUND OPTIMIZED & REVERSE INVERTER</span>
+<div class="app-container">
+    <!-- Header -->
+    <div class="header-title">
+        <h1>🏆 BDG WIN · BIG/SMALL 🏆</h1>
+        <p>⚡ PREDICTOR · JACKPOT & CLOUD LIVE ⚡</p>
+    </div>
+
+    <!-- Live Online Metrics Bar -->
+    <div class="wallet-metrics-grid">
+        <div class="metric-card">
+            <div class="metric-lbl">LIVE BALANCE</div>
+            <div class="metric-val val-gold" id="val-balance">₹400.00</div>
         </div>
-      </div>
-      <div class="cloud-status status-live" id="cloudStatus">
-        <span class="status-dot"></span>
-        <span id="statusText">LIVE TABLET FEED</span>
-      </div>
-    </header>
-
-    <!-- LIVE METRICS GRID -->
-    <section class="stats-grid">
-      <div class="stat-card">
-        <span class="stat-label">TOTAL WALLET BALANCE</span>
-        <div class="stat-val stat-gold" id="valBalance">₹275.00</div>
-        <span class="stat-sub" id="valStartBal">Start: ₹275.00</span>
-      </div>
-
-      <div class="stat-card">
-        <span class="stat-label">SESSION PROFIT</span>
-        <div class="stat-val stat-green" id="valPnl">+₹0.00</div>
-        <span class="stat-sub" id="valWinRate">Score: 0W / 0L</span>
-      </div>
-
-      <div class="stat-card">
-        <span class="stat-label">NEXT BET STAKE</span>
-        <div class="stat-val stat-cyan" id="valStake">₹1</div>
-        <span class="stat-sub" id="valBaseLbl">Base Bet: ₹1</span>
-      </div>
-    </section>
-
-    <!-- REMOTE CONTROLLER PANEL -->
-    <section class="settings-card" style="border: 1px solid #f7c873; box-shadow: 0 4px 25px rgba(247,200,115,0.15);">
-      <div class="settings-header">
-        <span><i class="fa-solid fa-gamepad" style="color:#f7c873;"></i> REMOTE CONTROL (FROM PHONE)</span>
-        <span style="font-size:10px;color:#00e676;font-weight:bold;" id="cmdFeedback">READY</span>
-      </div>
-      
-      <!-- 3-Way Strategy Mode Switch -->
-      <button id="btnRemoteMode" style="width:100%;padding:10px;border:none;border-radius:10px;background:linear-gradient(90deg, #ff007f, #7928ca);color:#fff;font-weight:900;font-size:12px;cursor:pointer;margin-top:8px;transition:0.2s;">
-        ⚡ MODE: B-S-B-S (PING-PONG ALTERNATOR)
-      </button>
-
-      <div class="config-grid" style="grid-template-columns: 1fr 1fr 1fr; margin-top:8px;">
-        <div class="config-item">
-          <label>Base Bet (₹)</label>
-          <div style="display:flex;gap:4px;margin-top:4px;">
-            <input type="number" id="remoteBaseBet" value="2" min="1" style="width:100%;">
-            <button class="btn-save-mini" id="btnSetBaseBet" style="background:#f7c873;color:#000;font-weight:900;border:none;border-radius:6px;padding:4px 8px;cursor:pointer;">SET</button>
-          </div>
+        <div class="metric-card">
+            <div class="metric-lbl">PROFIT (P/L)</div>
+            <div class="metric-val val-green" id="val-pnl">+₹0.00</div>
         </div>
-        <div class="config-item">
-          <label>Take Profit (₹)</label>
-          <div style="display:flex;gap:4px;margin-top:4px;">
-            <input type="number" id="remoteTakeProfit" value="500" min="1" style="width:100%;color:#00e676;font-weight:bold;">
-            <button class="btn-save-mini" id="btnSetTakeProfit" style="background:#00e676;color:#000;font-weight:900;border:none;border-radius:6px;padding:4px 8px;cursor:pointer;">SET</button>
-          </div>
+        <div class="metric-card">
+            <div class="metric-lbl">SCORE / STAKE</div>
+            <div class="metric-val val-cyan" id="val-stake">₹2 (0W/0L)</div>
         </div>
-        <div class="config-item">
-          <label>Start Balance (₹)</label>
-          <div style="display:flex;gap:4px;margin-top:4px;">
-            <input type="number" id="remoteStartBal" value="402" min="1" style="width:100%;">
-            <button class="btn-save-mini" id="btnSetStartBal" style="background:#f7c873;color:#000;font-weight:900;border:none;border-radius:6px;padding:4px 8px;cursor:pointer;">SET</button>
-          </div>
+    </div>
+
+    <!-- Mode Tabs -->
+    <div class="tabs">
+        <div class="tab-btn" id="tab-30s" onclick="switchMode('30s')">⏱ 30S</div>
+        <div class="tab-btn active" id="tab-1m" onclick="switchMode('1m')">⏳ 1M</div>
+    </div>
+
+    <!-- Dashboard Card -->
+    <div class="prediction-card">
+        <div class="top-corner-timer" id="corner-timer">00s</div>
+        <div class="period-header">⏳ NEXT PERIOD</div>
+        <div class="period-number" id="current-period">HACK STANDBY</div>
+
+        <div class="inner-dashed">
+            <div class="premium-badge">⚡ PREMIUM JACKPOT</div>
+            <div class="predicted-size" id="pred-size" style="color: #4b5563;">WAITING</div>
+            
+            <div class="balls-container" id="prediction-balls-box">
+                <div class="ball" style="background:#1c1917; box-shadow:none;"><span class="ball-num" style="color:#444;">-</span></div>
+                <div class="ball" style="background:#1c1917; box-shadow:none;"><span class="ball-num" style="color:#444;">-</span></div>
+            </div>
         </div>
-      </div>
 
-      <div style="display:flex;gap:8px;margin-top:10px;">
-        <button id="btnRemoteToggle" style="flex:1;padding:10px;border:none;border-radius:8px;background:#ff4757;color:#fff;font-weight:900;font-size:12px;cursor:pointer;">⏹ PAUSE BOT</button>
-        <button id="btnResetSession" style="padding:10px;border:none;border-radius:8px;background:rgba(255,255,255,0.08);color:#9aa3b8;font-weight:900;font-size:11px;cursor:pointer;">🔄 RESET BASE</button>
-      </div>
-    </section>
-
-    <!-- UPCOMING DRAW CARD -->
-    <section class="round-card">
-      <div class="round-header">
-        <div>
-          <span class="round-tag"><i class="fa-solid fa-dice"></i> UPCOMING DRAW (WINGO 1M)</span>
-          <div class="round-id" id="nextPeriod">Period #--</div>
+        <div class="live-status-bar">
+            <span>✅ Live · Next: <span id="capsule-period">----</span> · 🔮 High Precision Matched</span>
         </div>
-        <div class="timer-box">
-          <div class="timer-num" id="drawTimer">--</div>
-          <span class="timer-lbl">SEC</span>
+    </div>
+
+    <!-- Actions -->
+    <div class="action-row">
+        <button class="btn btn-start" id="btn-start" onclick="togglePrediction(true)">▶ START</button>
+        <button class="btn btn-stop" id="btn-stop" onclick="togglePrediction(false)">⏹ STOP</button>
+        <button class="btn btn-reset" id="btn-reset" onclick="sendResetCommand()">🔄 RESET</button>
+    </div>
+    <button class="btn btn-send" onclick="sendPredictionAlert()">🚀 SEND PREDICTION</button>
+
+    <!-- History View Logs -->
+    <div class="history-section">
+        <div class="history-title">
+            📋 RECENT HISTORY (last 11) · <span class="gold-text">🏆 WIN · JACKPOT</span>
         </div>
-      </div>
+        <div class="table-container">
+            <div class="no-data" id="empty-msg">No active logs found. Press START to analyze.</div>
+            <table id="data-table" style="display: none;">
+                <thead>
+                    <tr>
+                        <th style="width: 4px;"></th>
+                        <th>PERIOD</th>
+                        <th>NUMBER</th>
+                        <th>SIZE</th>
+                        <th>STATUS</th>
+                    </tr>
+                </thead>
+                <tbody id="history-body"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
 
-      <div class="signal-display" style="margin-top:10px;">
-        <div class="signal-badge" id="signalModeBadge">AI DRAGON PREDICTION</div>
-        <div class="signal-val" id="signalVal">BIG</div>
-        <div class="signal-stake-tag" id="signalStake">Next Stake: ₹1 on BIG</div>
-      </div>
-    </section>
+<script>
+    let currentMode = '1m';
+    let isRunning = true; 
+    let lastPeriod = "";
+    let predictionStore = {}; 
+    let historyRecords = [];
+    const CLOUD_API = '/api/settings';
 
-    <!-- LIVE BET FEED -->
-    <section class="history-card">
-      <h3 class="section-title"><i class="fa-solid fa-list-check"></i> LIVE BET FEED</h3>
-      <div class="table-container">
-        <table class="history-table">
-          <thead>
-            <tr>
-              <th>PERIOD</th>
-              <th>PREDICTION</th>
-              <th>DRAW RESULT</th>
-              <th>OUTCOME</th>
-              <th>P/L</th>
-              <th>TIME</th>
-            </tr>
-          </thead>
-          <tbody id="last5Body">
-            <tr>
-              <td colspan="6" style="text-align:center;color:#9aa3b8;">Streaming live rounds from tablet...</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
+    function switchMode(mode) {
+        if(currentMode === mode) return;
+        currentMode = mode;
+        document.getElementById('tab-30s').classList.toggle('active', mode === '30s');
+        document.getElementById('tab-1m').classList.toggle('active', mode === '1m');
+        lastPeriod = "";
+        predictionStore = {};
+        historyRecords = []; 
+        renderHistoryUI();
+        updateWingoGame();
+    }
 
-  </div>
+    async function sendRemoteCommand(commandType, payload = {}) {
+        try {
+            await fetch(CLOUD_API, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ isRemoteControl: true, commandType: commandType, payload: payload })
+            });
+        } catch(e) {}
+    }
 
-  <script src="app.js?v=10.2"></script>
+    function togglePrediction(state) {
+        isRunning = state;
+        sendRemoteCommand('TOGGLE_RUNNING', { running: state });
+        const startBtn = document.getElementById('btn-start');
+        const stopBtn = document.getElementById('btn-stop');
+        if (!state) {
+            document.getElementById('current-period').innerText = "PAUSED";
+            document.getElementById('pred-size').innerText = "WAITING";
+            document.getElementById('pred-size').className = "predicted-size";
+            document.getElementById('pred-size').style.color = "#4b5563";
+            document.getElementById('prediction-balls-box').innerHTML = `
+                <div class="ball" style="background:#1c1917; box-shadow:none;"><span class="ball-num" style="color:#444;">-</span></div>
+                <div class="ball" style="background:#1c1917; box-shadow:none;"><span class="ball-num" style="color:#444;">-</span></div>
+            `;
+        } else {
+            document.getElementById('pred-size').style.color = "";
+            updateWingoGame();
+        }
+    }
+
+    function sendResetCommand() {
+        sendRemoteCommand('RESET_BET', {});
+        alert("Bet reset command sent to online bot!");
+    }
+
+    function sendPredictionAlert() {
+        const pred = document.getElementById('pred-size').innerText;
+        const prd = document.getElementById('capsule-period').innerText;
+        alert(`🚀 Prediction Sent: Period #${prd} ➔ ${pred}`);
+    }
+
+    function generateBallHTML(num) {
+        return `
+            <div class="ball ball-n${num}">
+                <div class="ball-patch patch-l"></div>
+                <div class="ball-patch patch-r"></div>
+                <div class="ball-patch patch-b"></div>
+                <span class="ball-num">${num}</span>
+            </div>
+        `;
+    }
+
+    // High Accuracy Logic Engine
+    function analyzeDeepTrendEngine(listData) {
+        if(!listData || listData.length < 5) return Math.random() > 0.5 ? "BIG" : "SMALL";
+        let sizes = listData.slice(0, 12).map(item => parseInt(item.number) >= 5 ? "BIG" : "SMALL");
+        
+        let consecutiveCount = 1;
+        for(let i = 1; i < sizes.length; i++) {
+            if(sizes[i] === sizes[0]) consecutiveCount++;
+            else break;
+        }
+        
+        if(consecutiveCount >= 4) return sizes[0]; 
+        
+        let isAlternating = true;
+        for(let i = 0; i < 4; i++) {
+            if(sizes[i] === sizes[i+1]) { isAlternating = false; break; }
+        }
+        if(isAlternating) return sizes[0] === "BIG" ? "SMALL" : "BIG";
+
+        let weightSum = 0;
+        for(let i = 0; i < Math.min(listData.length, 6); i++) {
+            let num = parseInt(listData[i].number);
+            let pWeight = (6 - i) * 3;
+            weightSum += (num >= 5) ? pWeight : -pWeight;
+        }
+        return weightSum >= 0 ? "BIG" : "SMALL";
+    }
+
+    function getHighProbabilityBalls(listData, targetSize) {
+        let smallPool = [1, 2, 3, 4, 0];
+        let bigPool = [6, 7, 8, 9, 5];
+        let counts = {};
+        [...smallPool, ...bigPool].forEach(n => counts[n] = 0);
+        
+        let limit = Math.min(listData.length, 15);
+        for(let i = 0; i < limit; i++) {
+            let num = parseInt(listData[i].number);
+            if(counts[num] !== undefined) counts[num]++;
+        }
+        
+        smallPool.sort((a, b) => counts[b] - counts[a]);
+        bigPool.sort((a, b) => counts[b] - counts[a]);
+
+        if (targetSize === "BIG") {
+            return [bigPool[0], bigPool[1]]; 
+        } else {
+            return [smallPool[0], smallPool[1]];
+        }
+    }
+
+    async function updateWingoGame() {
+        try {
+            // Live Synchronized Local Timer
+            let currentDate = new Date();
+            let currentSeconds = currentDate.getSeconds();
+            
+            let timerValue = currentMode === '30s' ? (30 - (currentSeconds % 30)) : (60 - currentSeconds);
+            document.getElementById('corner-timer').innerText = `${String(timerValue).padStart(2, '0')}s`;
+
+            // 1. Fetch live telemetry from online cloud
+            try {
+                const cloudRes = await fetch(CLOUD_API + '?ts=' + Date.now());
+                const state = await cloudRes.json();
+                if (state) {
+                    if (state.currentBalance != null) {
+                        document.getElementById('val-balance').innerText = `₹${Number(state.currentBalance).toFixed(2)}`;
+                    }
+                    if (state.sessionProfit != null) {
+                        const prof = Number(state.sessionProfit);
+                        const pEl = document.getElementById('val-pnl');
+                        pEl.innerText = `${prof >= 0 ? '+' : ''}₹${prof.toFixed(2)}`;
+                        pEl.className = `metric-val ${prof >= 0 ? 'val-green' : 'val-gold'}`;
+                    }
+                    if (state.currentStake != null) {
+                        document.getElementById('val-stake').innerText = `₹${state.currentStake} (${state.wins || 0}W/${state.losses || 0}L)`;
+                    }
+                }
+            } catch(e) {}
+
+            // 2. Fetch Draw Results from live Lottery API
+            let apiUrl = currentMode === '1m' 
+                ? "https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssuePage.json"
+                : "https://draw.ar-lottery01.com/WinGo/WinGo_30S/GetHistoryIssuePage.json";
+
+            const response = await fetch(apiUrl); 
+            const jsonResult = await response.json();
+            const recordList = jsonResult.data.list;
+            const currentLatest = recordList[0]; 
+
+            if (!isRunning) return;
+
+            let nextPeriodNumber = (BigInt(currentLatest.issueNumber) + 1n).toString();
+            
+            if (lastPeriod !== nextPeriodNumber) {
+                if (predictionStore[currentLatest.issueNumber]) {
+                    evaluateAndPushHistory(currentLatest);
+                }
+
+                lastPeriod = nextPeriodNumber;
+                document.getElementById('current-period').innerText = nextPeriodNumber;
+                document.getElementById('capsule-period').innerText = nextPeriodNumber.slice(-4);
+
+                let predictedSize = analyzeDeepTrendEngine(recordList);
+                let lockedBalls = getHighProbabilityBalls(recordList, predictedSize);
+                let num1 = lockedBalls[0];
+                let num2 = lockedBalls[1];
+
+                let sizeElement = document.getElementById('pred-size');
+                sizeElement.innerText = predictedSize;
+                sizeElement.className = `predicted-size size-${predictedSize.toLowerCase()}`;
+
+                document.getElementById('prediction-balls-box').innerHTML = generateBallHTML(num1) + generateBallHTML(num2);
+
+                predictionStore[nextPeriodNumber] = { size: predictedSize, numbers: [num1, num2] };
+            }
+        } catch (error) {
+            console.log("Core refreshing safely...");
+        }
+    }
+
+    function evaluateAndPushHistory(gameItem) {
+        let gamePeriod = gameItem.issueNumber;
+        let gameNum = parseInt(gameItem.number);
+        let gameSize = gameNum < 5 ? "SMALL" : "BIG";
+        let ourPred = predictionStore[gamePeriod];
+        
+        if(!ourPred) return;
+
+        let statusHtml = "";
+        let indicatorClass = "";
+
+        if (ourPred.numbers.includes(gameNum)) {
+            statusHtml = `<div class="status-badge jackpot">🏆 JACKPOT</div>`;
+            indicatorClass = "indicator-jackpot";
+        }
+        else if (ourPred.size === gameSize) {
+            statusHtml = `<div class="status-badge win">✅ WIN</div>`;
+            indicatorClass = "indicator-win";
+        }
+        else {
+            statusHtml = `<div class="status-badge loss">❌ LOSS</div>`;
+            indicatorClass = "indicator-loss";
+        }
+
+        historyRecords.unshift({
+            period: gamePeriod.slice(-4),
+            number: gameNum,
+            size: gameSize,
+            status: statusHtml,
+            indicator: indicatorClass
+        });
+
+        if(historyRecords.length > 11) historyRecords.pop();
+        renderHistoryUI();
+    }
+
+    function renderHistoryUI() {
+        const tbody = document.getElementById('history-body');
+        const emptyMsg = document.getElementById('empty-msg');
+        const dataTable = document.getElementById('data-table');
+
+        if (historyRecords.length === 0) {
+            emptyMsg.style.display = "block";
+            dataTable.style.display = "none";
+            tbody.innerHTML = "";
+            return;
+        }
+
+        emptyMsg.style.display = "none";
+        dataTable.style.display = "table";
+        tbody.innerHTML = "";
+
+        historyRecords.forEach(item => {
+            let row = `
+                <tr class="history-row">
+                    <td class="indicator-td ${item.indicator}"></td>
+                    <td class="hist-period">#${item.period}</td>
+                    <td>
+                        <div class="hist-ball-wrapper">
+                            ${generateBallHTML(item.number)}
+                        </div>
+                    </td>
+                    <td><div class="hist-size ${item.size.toLowerCase()}">${item.size}</div></td>
+                    <td>${item.status}</td>
+                </tr>
+            `;
+            tbody.insertAdjacentHTML('beforeend', row);
+        });
+    }
+
+    setInterval(updateWingoGame, 1000);
+    updateWingoGame();
+</script>
 </body>
 </html>
