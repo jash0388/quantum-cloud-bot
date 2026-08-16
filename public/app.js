@@ -190,15 +190,28 @@
           let outcomeTag = `<span class="${sizeClass}" style="padding:2px 6px;border-radius:4px;font-size:10px;">${drawSize}</span>`;
           let plTag = '<span style="color:#8892b0;">-</span>';
 
-          if (b.won === true) {
+          // Determine WIN / LOSS automatically if prediction was BIG or SMALL
+          if (pred === 'BIG' || pred === 'SMALL') {
+            if (drawSize !== '--') {
+              const didWin = (pred === drawSize);
+              const stakeAmt = b.stake || state.baseBet || 2;
+              if (didWin) {
+                outcomeTag = '<span class="win-tag" style="background:#00e676;color:#000;font-weight:bold;padding:2px 6px;border-radius:4px;font-size:10px;">WIN 🏆</span>';
+                plTag = `<span style="color:#00e676;font-weight:bold;">+₹${(stakeAmt * 0.96).toFixed(2)}</span>`;
+              } else {
+                outcomeTag = '<span class="loss-tag" style="background:#ff4757;color:#fff;font-weight:bold;padding:2px 6px;border-radius:4px;font-size:10px;">LOSS 💀</span>';
+                plTag = `<span style="color:#ff4757;font-weight:bold;">-₹${stakeAmt.toFixed(2)}</span>`;
+              }
+            }
+          } else if (b.won === true) {
             outcomeTag = '<span class="win-tag" style="background:#00e676;color:#000;font-weight:bold;padding:2px 6px;border-radius:4px;font-size:10px;">WIN 🏆</span>';
-            const prof = (b.profit && !isNaN(b.profit)) ? Number(b.profit) : (b.stake ? b.stake * 0.96 : 1.92);
+            const prof = (b.profit && !isNaN(b.profit)) ? Number(b.profit) : 1.92;
             plTag = `<span style="color:#00e676;font-weight:bold;">+₹${prof.toFixed(2)}</span>`;
           } else if (b.won === false) {
             outcomeTag = '<span class="loss-tag" style="background:#ff4757;color:#fff;font-weight:bold;padding:2px 6px;border-radius:4px;font-size:10px;">LOSS 💀</span>';
-            const lossAmt = (b.profit && !isNaN(b.profit)) ? Math.abs(Number(b.profit)) : (b.stake || 2);
+            const lossAmt = (b.profit && !isNaN(b.profit)) ? Math.abs(Number(b.profit)) : 2;
             plTag = `<span style="color:#ff4757;font-weight:bold;">-₹${lossAmt.toFixed(2)}</span>`;
-          } else if (b.prediction === 'SKIPPED' || b.mode?.includes('CHOP')) {
+          } else if (pred === 'SKIPPED' || b.mode?.includes('CHOP')) {
             outcomeTag = '<span style="color:#ffea00;font-weight:bold;font-size:10px;">🛡️ SKIPPED</span>';
             plTag = '<span style="color:#8892b0;">₹0.00</span>';
           }
