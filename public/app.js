@@ -167,12 +167,12 @@
       if (state.history && state.history.length > 0) {
         tbody.innerHTML = state.history.slice(0, 15).map(b => {
           const pStr = b.period ? String(b.period).slice(-4) : '--';
-          const drawNum = b.number !== undefined ? b.number : '--';
-          const drawSize = b.size || (parseInt(drawNum) >= 5 ? 'BIG' : 'SMALL') || '--';
-          const pred = b.prediction || b.pred || drawSize;
-          const predClass = pred.includes('BIG') || pred === 'BIG' ? 'tag-big' : 'tag-small';
-          const sizeClass = drawSize === 'BIG' ? 'tag-big' : 'tag-small';
-          const timeStr = b.time || new Date().toLocaleTimeString();
+          const drawNum = (b.number !== undefined && b.number !== null && b.number !== '') ? b.number : '--';
+          const drawSize = b.size || (drawNum !== '--' && parseInt(drawNum) >= 5 ? 'BIG' : (drawNum !== '--' && parseInt(drawNum) < 5 ? 'SMALL' : '--'));
+          const pred = b.prediction || b.pred || '--';
+          const predClass = pred === 'BIG' ? 'tag-big' : (pred === 'SMALL' ? 'tag-small' : '');
+          const sizeClass = drawSize === 'BIG' ? 'tag-big' : (drawSize === 'SMALL' ? 'tag-small' : '');
+          const timeStr = b.time || '';
 
           if (b.isPending) {
             return `
@@ -180,32 +180,34 @@
                 <td><strong>#${pStr}</strong></td>
                 <td><span class="${predClass}">${pred}</span></td>
                 <td style="color:#00f5ff;font-weight:bold;">⏳ DRAWING...</td>
-                <td style="color:#00f5ff;font-weight:bold;">PLACED</td>
-                <td style="color:#ffea00;">-₹${b.stake || state.currentStake || 2}</td>
+                <td><span style="color:#00f5ff;font-weight:bold;font-size:11px;">PLACED ₹${b.stake || state.currentStake || 2}</span></td>
+                <td style="color:#ffea00;font-size:11px;">PENDING</td>
                 <td style="color:#9aa3b8;font-size:10px;">${timeStr}</td>
               </tr>
             `;
           }
 
-          let outcomeTag = '<span style="color:#8892b0;">RESOLVED</span>';
+          let outcomeTag = `<span class="${sizeClass}" style="padding:2px 6px;border-radius:4px;font-size:10px;">${drawSize}</span>`;
           let plTag = '<span style="color:#8892b0;">-</span>';
 
           if (b.won === true) {
-            outcomeTag = '<span class="win-tag">WIN 🏆</span>';
-            plTag = `<span class="win-tag">+₹${(b.profit || (b.stake ? b.stake * 0.96 : 1.92)).toFixed(2)}</span>`;
+            outcomeTag = '<span class="win-tag" style="background:#00e676;color:#000;font-weight:bold;padding:2px 6px;border-radius:4px;font-size:10px;">WIN 🏆</span>';
+            const prof = (b.profit && !isNaN(b.profit)) ? Number(b.profit) : (b.stake ? b.stake * 0.96 : 1.92);
+            plTag = `<span style="color:#00e676;font-weight:bold;">+₹${prof.toFixed(2)}</span>`;
           } else if (b.won === false) {
-            outcomeTag = '<span class="loss-tag">LOSS 💀</span>';
-            plTag = `<span class="loss-tag">-₹${(b.profit ? Math.abs(b.profit) : (b.stake || 2)).toFixed(2)}</span>`;
-          } else {
-            outcomeTag = `<span class="${sizeClass}">${drawSize}</span>`;
-            plTag = `<span style="color:#8892b0;">-</span>`;
+            outcomeTag = '<span class="loss-tag" style="background:#ff4757;color:#fff;font-weight:bold;padding:2px 6px;border-radius:4px;font-size:10px;">LOSS 💀</span>';
+            const lossAmt = (b.profit && !isNaN(b.profit)) ? Math.abs(Number(b.profit)) : (b.stake || 2);
+            plTag = `<span style="color:#ff4757;font-weight:bold;">-₹${lossAmt.toFixed(2)}</span>`;
+          } else if (b.prediction === 'SKIPPED' || b.mode?.includes('CHOP')) {
+            outcomeTag = '<span style="color:#ffea00;font-weight:bold;font-size:10px;">🛡️ SKIPPED</span>';
+            plTag = '<span style="color:#8892b0;">₹0.00</span>';
           }
 
           return `
             <tr>
               <td><strong>#${pStr}</strong></td>
-              <td><span class="${predClass}">${pred}</span></td>
-              <td style="font-size:12px;font-weight:bold;">${drawNum} <span class="${sizeClass}" style="font-size:9.5px;padding:2px 4px;">${drawSize}</span></td>
+              <td>${pred !== '--' && pred !== 'SKIPPED' ? `<span class="${predClass}">${pred}</span>` : (pred === 'SKIPPED' ? '<span style="color:#ffea00;font-size:10px;font-weight:bold;">SKIPPED</span>' : '<span style="color:#8892b0;">-</span>')}</td>
+              <td style="font-size:12px;font-weight:bold;">${drawNum !== '--' ? `${drawNum} <span class="${sizeClass}" style="font-size:9.5px;padding:1px 4px;border-radius:3px;">${drawSize}</span>` : '--'}</td>
               <td>${outcomeTag}</td>
               <td>${plTag}</td>
               <td style="color:#9aa3b8;font-size:10px;">${timeStr}</td>
