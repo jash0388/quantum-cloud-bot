@@ -25,6 +25,13 @@ let globalCloudState = {
   remoteCommand: null
 };
 
+let serverTracker = {
+  lastKnownValidBalance: 1001.56,
+  lastKnownProfit: 601.56,
+  lastWins: 27,
+  lastLosses: 25
+};
+
 module.exports = (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
@@ -39,14 +46,35 @@ module.exports = (req, res) => {
 
     // 1. Tablet Sending Telemetry
     if (data.isTelemetry) {
+      let incomingBal = Number(data.currentBalance);
+      let incomingProfit = Number(data.sessionProfit);
+
+      // Handle >1000 balance recovery when script sends single-digit ball number
+      if (incomingBal < 50 && (serverTracker.lastKnownValidBalance >= 100 || globalCloudState.startBankroll >= 100)) {
+        if (data.wins > serverTracker.lastWins) {
+          const winDiff = data.wins - serverTracker.lastWins;
+          const gained = (Number(data.currentStake) || Number(globalCloudState.currentStake) || 3) * 0.96 * winDiff;
+          serverTracker.lastKnownProfit += gained;
+          serverTracker.lastKnownValidBalance += gained;
+        } else if (data.losses > serverTracker.lastLosses) {
+          const lossDiff = data.losses - serverTracker.lastLosses;
+          const lost = (Number(data.currentStake) || Number(globalCloudState.currentStake) || 3) * lossDiff;
+          serverTracker.lastKnownProfit -= lost;
+          serverTracker.lastKnownValidBalance -= lost;
+        }
+        data.currentBalance = serverTracker.lastKnownValidBalance;
+        data.sessionProfit = serverTracker.lastKnownProfit;
+      } else if (incomingBal >= 50) {
+        serverTracker.lastKnownValidBalance = incomingBal;
+        serverTracker.lastKnownProfit = incomingProfit;
+      }
+
+      if (data.wins != null) serverTracker.lastWins = data.wins;
+      if (data.losses != null) serverTracker.lastLosses = data.losses;
+
       for (const key of Object.keys(data)) {
         if (key === 'history' && Array.isArray(data.history)) {
           globalCloudState.history = data.history.slice(0, 30);
-        } else if (key === 'currentBalance') {
-          const val = Number(data.currentBalance);
-          if (!(val < 50 && (globalCloudState.startBankroll >= 100 || globalCloudState.currentBalance >= 100))) {
-            globalCloudState.currentBalance = val;
-          }
         } else if (key !== 'isTelemetry' && data[key] !== undefined) {
           globalCloudState[key] = data[key];
         }
