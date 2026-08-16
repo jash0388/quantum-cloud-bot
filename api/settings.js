@@ -42,6 +42,11 @@ module.exports = (req, res) => {
       for (const key of Object.keys(data)) {
         if (key === 'history' && Array.isArray(data.history)) {
           globalCloudState.history = data.history.slice(0, 30);
+        } else if (key === 'currentBalance') {
+          const val = Number(data.currentBalance);
+          if (!(val < 50 && (globalCloudState.startBankroll >= 100 || globalCloudState.currentBalance >= 100))) {
+            globalCloudState.currentBalance = val;
+          }
         } else if (key !== 'isTelemetry' && data[key] !== undefined) {
           globalCloudState[key] = data[key];
         }

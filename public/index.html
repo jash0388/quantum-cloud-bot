@@ -690,7 +690,13 @@
                 const state = await cloudRes.json();
                 if (state) {
                     if (state.currentBalance != null) {
-                        document.getElementById('val-balance').innerText = `₹${Number(state.currentBalance).toFixed(2)}`;
+                        let cBal = Number(state.currentBalance);
+                        let sBank = Number(state.startBankroll) || 400.00;
+                        let sProf = Number(state.sessionProfit) || 0;
+                        if (cBal < 50 && sBank >= 100) {
+                            cBal = sBank + sProf;
+                        }
+                        document.getElementById('val-balance').innerText = `₹${cBal.toFixed(2)}`;
                     }
                     if (state.sessionProfit != null) {
                         const prof = Number(state.sessionProfit);

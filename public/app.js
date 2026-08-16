@@ -108,15 +108,21 @@
       const state = await res.json();
       if (!state) return;
 
-      const currentBal = state.currentBalance != null ? state.currentBalance : 275.00;
-      const profit = state.sessionProfit != null ? state.sessionProfit : 0;
+      const startBank = Number(state.startBankroll) || 400.00;
+      let profit = Number(state.sessionProfit) || 0;
+      let currentBal = state.currentBalance != null ? Number(state.currentBalance) : startBank;
+
+      // If script sent single-digit balance anomaly, compute true balance directly
+      if (currentBal < 50 && startBank >= 100) {
+        currentBal = startBank + profit;
+      }
       const stake = state.currentStake || state.baseBet || 1;
       const wins = state.wins || 0;
       const losses = state.losses || 0;
 
       // Update UI
       document.getElementById('valBalance').textContent = `₹${currentBal.toFixed(2)}`;
-      document.getElementById('valStartBal').textContent = `Start: ₹${(state.startBankroll || 275).toFixed(2)}`;
+      document.getElementById('valStartBal').textContent = `Start: ₹${startBank.toFixed(2)}`;
 
       const pnlEl = document.getElementById('valPnl');
       pnlEl.textContent = `${profit >= 0 ? '+' : ''}₹${profit.toFixed(2)}`;
