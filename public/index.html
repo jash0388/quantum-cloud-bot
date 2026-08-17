@@ -596,7 +596,7 @@
         `;
     }
 
-    // High Accuracy Logic Engine (BB-SS-BB + DEEP TREND)
+    // High Accuracy Logic Engine (REAL MODZ v15.0: BB-SS-BB + BSBSBS + NEURAL CORE v3)
     function detectBBSSBBPattern(sizes) {
         if (!sizes || sizes.length < 4) return null;
         const r0 = sizes[0];
@@ -604,18 +604,24 @@
         const r2 = sizes[2];
         const r3 = sizes[3];
 
-        // Case 1: Completed 2-pair [B, B, S, S] or [S, S, B, B] -> start next pair
         if (r0 === r1 && r2 === r3 && r0 !== r2) {
             const nextToStart = (r0 === 'BIG') ? 'SMALL' : 'BIG';
             return { pred: nextToStart, pattern: `BB-SS-BB (${r2}${r2}-${r0}${r0} ➔ 1st ${nextToStart})` };
         }
 
-        // Case 2: Halfway through new pair [S, B, B, S, S] or [B, S, S, B, B] -> complete 2nd of pair
         if (sizes.length >= 5 && r0 !== r1 && r1 === r2 && r3 === sizes[4] && r1 !== r3 && r0 === r3) {
             const nextToComplete = r0;
             return { pred: nextToComplete, pattern: `BB-SS-BB (${r1}${r1}-${r0} ➔ 2nd ${nextToComplete})` };
         }
+        return null;
+    }
 
+    function detectBSBSBSPattern(sizes) {
+        if (!sizes || sizes.length < 4) return null;
+        const isAlternating4 = (sizes[0] !== sizes[1] && sizes[1] !== sizes[2] && sizes[2] !== sizes[3]);
+        if (isAlternating4) {
+            return { pred: "BIG", pattern: "BSBSBS CHOP (➔ BIG)" };
+        }
         return null;
     }
 
@@ -627,30 +633,17 @@
         const bbss = detectBBSSBBPattern(sizes);
         if (bbss) return bbss.pred;
 
-        // 2. Priority 2: Consecutive Streak (4+ in a row)
-        let consecutiveCount = 1;
-        for(let i = 1; i < sizes.length; i++) {
-            if(sizes[i] === sizes[0]) consecutiveCount++;
-            else break;
-        }
-        if(consecutiveCount >= 4) return sizes[0]; 
-        
-        // 3. Priority 3: Alternating Pattern (B-S-B-S) Inverter
-        let isAlternating = true;
-        for(let i = 0; i < 4; i++) {
-            if(sizes[i] === sizes[i+1]) { isAlternating = false; break; }
-        }
-        if(isAlternating) return sizes[0] === "BIG" ? "SMALL" : "BIG";
+        // 2. Priority 2: BSBSBS Chop Pattern (Next bet: BIG)
+        const chop = detectBSBSBSPattern(sizes);
+        if (chop) return chop.pred;
 
-        // 4. Priority 4: Weighted Probability Sum
-        let weightSum = 0;
-        for(let i = 0; i < Math.min(listData.length, 6); i++) {
-            let num = parseInt(listData[i].number);
-            if (isNaN(num)) num = listData[i].size === 'BIG' ? 7 : 2;
-            let pWeight = (6 - i) * 3;
-            weightSum += (num >= 5) ? pWeight : -pWeight;
+        // 3. Priority 3: Quantum Neural Core v3
+        let H = listData.map(x => parseInt(x.number)).filter(n => !isNaN(n)).reverse();
+        let a = 0.35, e = 0.5;
+        for (let i = 0; i < Math.min(20, H.length); i++) {
+            e = a * ((H[i] >= 5) ? 1 : 0) + (1 - a) * e;
         }
-        return weightSum >= 0 ? "BIG" : "SMALL";
+        return e >= 0.5 ? "BIG" : "SMALL";
     }
 
     function getHighProbabilityBalls(listData, targetSize) {
